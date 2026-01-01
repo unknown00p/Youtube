@@ -1,10 +1,13 @@
-Project Name: Youtube
+Project Name: PixTube
 
 Project Desc: 
+
     its a video streaming platform where you can upload your video and watch others videos. you can like the videos subscribe the channel make your own channel, there is views, playlist, likes, subscribers about your and others
 
 Core Problem it solves: 
-    for now its not solving any problems becuse i am making this for learning
+
+    User Problem: Content creators need a simple way to share videos without complex setup.
+    My Problem: I need to learn video streaming architecture, real-time metrics, and scalable systems.
 
 MVP Features:
 
@@ -15,7 +18,6 @@ MVP Features:
     5. liking/disliking videos
     6. subscribing/unsubscribing channels
     7. playlist creation
-    8. shorts uploading/watching (store/stream in bites, single high quility format)
 
 After MVP:
 
@@ -23,6 +25,7 @@ After MVP:
     2. advance video/channel Searcing
     3. video downloding for offline watching
     4. Admin pannel
+    5. shorts uploading/watching (store/stream in bites, single high quility format)
 
 Out of Scope:
 
@@ -31,5 +34,6 @@ Out of Scope:
 
 Success Metrics:(Performance & Experience Metrics)
 
-    1. Api response time (100 ms - 300 ms)
-    2. Uptime / Availability (99%)
+    1. Api response time (p95 for non-video endpoints)
+    2. Uptime / Availability (99.9%)
+    3. User Experience: Video start time < 2 seconds for 90% of requests
