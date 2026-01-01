@@ -1,11 +1,10 @@
 import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { config } from "./config/config.ts";
 
 const app = express();
 
-dotenv.config();
 app.use(
   cors({
     origin: "*",
@@ -16,8 +15,8 @@ app.use(
 );
 app.use(cookieParser());
 
-const port = process.env.PORT || 3000;
+const port = config.PORT || "3000";
 
 app.listen(port, () => {
-  console.log("server listining on ", port);
+  console.log("server listining on", port);
 });
