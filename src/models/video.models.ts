@@ -1,31 +1,34 @@
 import mongoose, { Schema } from "mongoose";
 
 const videoSchema = new Schema({
-  _id: Schema.Types.ObjectId,
-  title: String, // indexed, text search
-  description: String, // text search
-  owner_id: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
-  }, // indexed (shard key candidate)
+  title: { type: String, required: true }, // indexed, text search
+  description: { type: String, required: true }, // text search
   channel_id: {
     type: Schema.Types.ObjectId,
-    ref: "Channel",
+    ref: "User",
   }, // reference to user's channel
 
   // Media information
-  video_url: String, // CDN URL
-  thumbnail_url: String,
-  duration: Number, // in seconds
+  video_url: { type: String, required: true }, // CDN URL
+  thumbnail_url: { type: String, required: true },
+  duration: { type: Number, default: null }, // in seconds
 
   // Metadata
-  tags: [String], // indexed
-  category: String, // indexed
-  language: String,
+  tags: { type: [String], default: null }, // indexed
+  category: { type: String, required: true }, // indexed
+  language: { type: String, default: null },
 
   // Privacy and status
-  visibility: { enum: ["public", "private", "unlisted"], default: "public" }, // 'public', 'private', 'unlisted'
-  status: { enum: ["processing", "published", "failed"], default: "processing" }, // 'processing', 'published', 'failed'
+  visibility: {
+    type: String,
+    enum: ["public", "private", "unlisted"],
+    default: "public",
+  }, // 'public', 'private', 'unlisted'
+  status: {
+    type: String,
+    enum: ["processing", "published", "failed"],
+    default: "processing",
+  }, // 'processing', 'published', 'failed'
 
   // Engagement metrics (denormalized for performance)
   view_count: { type: Number, default: 0 },
@@ -34,20 +37,13 @@ const videoSchema = new Schema({
   comment_count: { type: Number, default: 0 },
 
   // Timestamps with TTL for unpublished videos
-  published_at: Date, // indexed
-  created_at: Date,
-  updated_at: Date,
-
-  // Video-specific settings
-  monetization: {
-    is_monetized: Boolean,
-    ads_enabled: Boolean,
-  },
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
 });
 
 // Define indexes
-videoSchema.index({ owner_id: 1, published_at: -1 });
-videoSchema.index({ category: 1, published_at: -1 });
+videoSchema.index({ channel_id: 1, created_at: -1 });
+videoSchema.index({ category: 1, created_at: -1 });
 videoSchema.index({ tags: 1 });
 videoSchema.index({ title: "text", description: "text" });
 
