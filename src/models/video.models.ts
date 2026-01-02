@@ -4,8 +4,14 @@ const videoSchema = new Schema({
   _id: Schema.Types.ObjectId,
   title: String, // indexed, text search
   description: String, // text search
-  owner_id: Schema.Types.ObjectId, // indexed (shard key candidate)
-  channel_id: Schema.Types.ObjectId, // reference to user's channel
+  owner_id: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+  }, // indexed (shard key candidate)
+  channel_id: {
+    type: Schema.Types.ObjectId,
+    ref: "Channel",
+  }, // reference to user's channel
 
   // Media information
   video_url: String, // CDN URL
@@ -18,8 +24,8 @@ const videoSchema = new Schema({
   language: String,
 
   // Privacy and status
-  visibility: String, // 'public', 'private', 'unlisted'
-  status: String, // 'processing', 'published', 'failed'
+  visibility: { enum: ["public", "private", "unlisted"], default: "public" }, // 'public', 'private', 'unlisted'
+  status: { enum: ["processing", "published", "failed"], default: "processing" }, // 'processing', 'published', 'failed'
 
   // Engagement metrics (denormalized for performance)
   view_count: { type: Number, default: 0 },

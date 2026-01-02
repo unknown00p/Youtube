@@ -10,17 +10,6 @@ const userSchema = new Schema({
   subscriber_count: Number, // periodically updated from subscriptions collection
   created_at: Date,
   updated_at: Date,
-
-  // Denormalized frequently accessed data
-  total_views: { type: Number, default: 0 },
-  total_videos: { type: Number, default: 0 },
-
-  // Settings/Preferences
-  settings: {
-    privacy: String,
-    notification_preferences: Map,
-  },
-
 });
 
 // Define indexes
