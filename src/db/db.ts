@@ -3,8 +3,9 @@ import { config } from "../config/config.ts";
 
 export async function connectDB() {
     try {
-        // note: the socket connection only be created when a Database query request arrives othervise the pool will be empty untill we define the default socket connection in minPoolSize
+        // note: when we will connect to the databse a socket connection will be lazily created inside pool and if we get the sudden query req it will be delayed. thats why we defines minPoolSize so that we always have socket available right after connection
         await mongoose.connect(config.DATABASE_URL,{
+            
             // Maximum number of concurrent connections the pool can have.
             // If more queries arrive than available connections, the pool will create new connections up to this limit.
             maxPoolSize: 10,
