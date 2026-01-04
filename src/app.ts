@@ -6,6 +6,7 @@ import express, {
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { connectDB } from "./db/db.ts";
+import { auth_router } from "./routes/user_auth.routes.ts";
 
 // configures server in express
 const app = express();
@@ -27,6 +28,10 @@ app.use(
   })
 );
 app.use(cookieParser());
+
+// Router Mounting (with Route Prefixing) using Express Router.
+// Here we are forwarding the request to auth_router file for further route(provided along with /user_auth. example:"/user_auth/sign_up") access for logical opration
+app.use("/user_auth",auth_router)
 
 // global error handler: if error is not handled elsewhere it will be catched here
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
