@@ -57,6 +57,7 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
+
 // Define indexes
 userSchema.index({ username: 1 }, { unique: true });
 userSchema.index({ email: 1 }, { unique: true });
