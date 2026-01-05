@@ -1,6 +1,18 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
 
-const likeSchema = new Schema(
+export type ReactionType = "like" | "dislike";
+
+export interface ILike {
+  video_id: Types.ObjectId;
+  user_id: Types.ObjectId;
+  type: ReactionType;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type LikeDocument = mongoose.HydratedDocument<ILike>;
+
+const likeSchema = new Schema<ILike>(
   {
     video_id: {
       type: Schema.Types.ObjectId,
@@ -24,4 +36,4 @@ const likeSchema = new Schema(
 // Define indexes
 likeSchema.index({ video_id: 1, createdAt: -1 });
 
-export const Like = mongoose.model("Like", likeSchema);
+export const Like = mongoose.model<ILike>("Like", likeSchema);

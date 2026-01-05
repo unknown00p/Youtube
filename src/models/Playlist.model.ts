@@ -1,6 +1,26 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
 
-const PlaylistSchema = new Schema(
+export type PlaylistVisibility = "public" | "private" | "unlisted";
+
+export interface IPlaylistVideo {
+  video_id: Types.ObjectId;
+  added_at: Date | null;
+  position: number;
+}
+
+export interface IPlaylist {
+  name: string;
+  owner_id: Types.ObjectId;
+  visibility: PlaylistVisibility;
+  videos: IPlaylistVideo[];
+  video_count: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type PlaylistDocument = mongoose.HydratedDocument<IPlaylist>;
+
+const PlaylistSchema = new Schema<IPlaylist>(
   {
     name: { type: String, required: true },
     owner_id: {
@@ -31,4 +51,4 @@ const PlaylistSchema = new Schema(
 PlaylistSchema.index({ owner_id: 1 });
 PlaylistSchema.index({ "videos.video_id": 1 });
 
-export const Playlist = mongoose.model("Playlist", PlaylistSchema);
+export const Playlist = mongoose.model<IPlaylist>("Playlist", PlaylistSchema);

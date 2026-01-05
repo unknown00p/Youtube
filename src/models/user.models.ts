@@ -1,6 +1,33 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, type HydratedDocument } from "mongoose";
 
-const userSchema = new Schema(
+interface IUser {
+  email: string;
+  passwordHash?: string; // Optional based on auth providers
+  googleId?: string;
+  githubId?: string;
+  username: string;
+  channelName?: string;
+  profilePicture?: string | null;
+  bannerImage?: string | null;
+  description?: string | null;
+  isChannelSetup: boolean;
+  stats: {
+    subscriberCount: number;
+    videoCount: number;
+    viewCount: number;
+  };
+  channelSetupAt?: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type UserDocument = HydratedDocument<IUser>;
+
+const passwordRequired = function (this: IUser): boolean {
+  return !this.googleId && !this.githubId;
+};
+
+const userSchema = new Schema<IUser>(
   {
     // Required for ALL users (signup)
     email: {
@@ -8,13 +35,11 @@ const userSchema = new Schema(
       required: true,
       unique: true,
       index: true,
+      lowercase: true,
     }, // indexed
     passwordHash: {
       type: String,
-      required: function () {
-        // Only required if not using OAuth
-        return !this.googleId && !this.githubId;
-      },
+      required: passwordRequired,
     },
 
     // Auth providers (optional)
@@ -57,10 +82,9 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
-
 // Define indexes
 userSchema.index({ username: 1 }, { unique: true });
 userSchema.index({ email: 1 }, { unique: true });
 userSchema.index({ channel_name: 1 });
 
-export const User = mongoose.model("User", userSchema);
+export const User = mongoose.model<IUser>("User", userSchema);

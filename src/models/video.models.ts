@@ -1,6 +1,28 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
 
-const videoSchema = new Schema(
+interface IVideo {
+  title: string;
+  description: string;
+  channel_id: Types.ObjectId;
+  video_url: string;
+  thumbnail_url: string;
+  duration: number | null;
+  tags: string[] | null;
+  category: string;
+  language: string | null;
+  visibility: "public" | "private" | "unlisted";
+  status: "processing" | "published" | "failed";
+  view_count: number;
+  like_count: number;
+  dislike_count: number;
+  comment_count: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type VideoDocument = mongoose.HydratedDocument<IVideo>;
+
+const videoSchema = new Schema<IVideo>(
   {
     title: { type: String, required: true }, // indexed, text search
     description: { type: String, required: true }, // text search
@@ -46,4 +68,4 @@ videoSchema.index({ category: 1, createdAt: -1 });
 videoSchema.index({ tags: 1 });
 videoSchema.index({ title: "text", description: "text" });
 
-export const Video = mongoose.model("Video", videoSchema);
+export const Video = mongoose.model<IVideo>("Video", videoSchema);

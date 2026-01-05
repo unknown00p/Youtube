@@ -1,6 +1,16 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
 
-const watchHistorySchema = new Schema(
+interface IWatchHistory {
+  user_id: Types.ObjectId;
+  video_id: Types.ObjectId;
+  progress: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type WatchHistoryDocument = mongoose.HydratedDocument<IWatchHistory>;
+
+const watchHistorySchema = new Schema<IWatchHistory>(
   {
     user_id: {
       type: Schema.Types.ObjectId,
@@ -12,8 +22,8 @@ const watchHistorySchema = new Schema(
     },
     progress: { type: Number, default: 0 }, // last watched position in seconds
     // duration: { type: Number, default: 0 },
-},
-{ timestamps: true }
+  },
+  { timestamps: true }
 );
 
 // Define indexes
@@ -21,6 +31,6 @@ const watchHistorySchema = new Schema(
 watchHistorySchema.index({ user_id: 1 });
 
 // TTL: {watched_at: 1}, expireAfterSeconds: 7776000 (90 days)
-watchHistorySchema.index({ createdAd: -1 }, { expireAfterSeconds: 7776000 });
+watchHistorySchema.index({ createdAt: -1 }, { expireAfterSeconds: 7776000 });
 
-export const WatchHistory = mongoose.model("WatchHistory", watchHistorySchema);
+export const WatchHistory = mongoose.model<IWatchHistory>("WatchHistory", watchHistorySchema);
