@@ -137,7 +137,6 @@ userSchema.methods.generate_refresh_token = function (this: IUser) {
   return jwt.sign(
     {
       _id: this._id,
-      email: this.email,
     },
     config.REFRESH_TOKEN_SECRET as string,
     {

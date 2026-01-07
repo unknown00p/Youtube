@@ -13,11 +13,11 @@ const subscriptionSchema = new Schema<ISubscription>(
   {
     subscriber_id: {
       type: Schema.Types.ObjectId,
-      ref: "Video",
+      ref: "User",
     }, // user who is subscribing
     channel_id: {
       type: Schema.Types.ObjectId,
-      ref: "Video",
+      ref: "User",
     }, // user being subscribed to
   },
   { timestamps: true }
