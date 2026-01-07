@@ -1,10 +1,15 @@
 import mongoose, { Schema, type HydratedDocument } from "mongoose";
+import jwt from "jsonwebtoken";
+import { config } from "../config/config";
+import type { NextFunction } from "express";
 
 interface IUser {
+  _id: string;
   email: string;
-  passwordHash?: string; // Optional based on auth providers
+  password?: string; // Optional based on auth providers
   googleId?: string;
   githubId?: string;
+  refreshToken: string;
   username: string;
   channelName?: string;
   profilePicture?: string | null;
@@ -37,7 +42,7 @@ const userSchema = new Schema<IUser>(
       index: true,
       lowercase: true,
     }, // indexed
-    passwordHash: {
+    password: {
       type: String,
       required: passwordRequired,
     },
@@ -53,6 +58,10 @@ const userSchema = new Schema<IUser>(
       unique: true,
       index: true,
     }, // indexed
+
+    refreshToken: {
+      type: String,
+    },
 
     channelName: {
       type: String,
@@ -82,9 +91,64 @@ const userSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
+// has the password before saving the document into database
+userSchema.pre("save", async function () {
+  const user = this as UserDocument;
+
+  // we are checking if password is already hashed or there is not any password if true don't continew and terminate the function
+  if (!user.isModified("password") || !user.password) {
+    return;
+  }
+
+  try {
+    // we are using bun build in method to hash the password
+    user.password = await Bun.password.hash(user.password);
+  } catch (error) {
+    throw new Error("Password hashing failed");
+  }
+});
+
+// creating a instance method for generating access_token
+userSchema.methods.generate_access_token = function (this: IUser) {
+  // using sign method of jwt for creating access_token
+  return jwt.sign(
+    {
+      _id: this._id,
+      email: this.email,
+      username: this.username,
+    },
+    config.ACCESS_TOKEN_SECRET as string,
+    {
+      expiresIn: config.ACCESS_TOKEN_EXPIRATION as any,
+    }
+  );
+};
+
+userSchema.methods.is_password_correct = async function (password: string) {
+  const user = this as IUser
+  if (!user.password) {
+    return
+  }
+  return await Bun.password.verify(password, user.password)
+};
+
+userSchema.methods.generate_refresh_token = function (this: IUser) {
+  // using sign method of jwt for creating refresh_token
+  return jwt.sign(
+    {
+      _id: this._id,
+      email: this.email,
+    },
+    config.REFRESH_TOKEN_SECRET as string,
+    {
+      expiresIn: config.REFRESH_TOKEN_EXPIRATION as any,
+    }
+  );
+};
+
 // Define indexes
 userSchema.index({ username: 1 }, { unique: true });
 userSchema.index({ email: 1 }, { unique: true });
-userSchema.index({ channel_name: 1 });
+userSchema.index({ channelName: 1 });
 
 export const User = mongoose.model<IUser>("User", userSchema);
