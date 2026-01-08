@@ -26,13 +26,21 @@ export interface IUser {
   updatedAt: Date;
 }
 
-export type UserDocument = HydratedDocument<IUser>;
+// here we are defining types for schema's instance methods
+export interface UserMethods {
+  generate_accessToken(): string;
+  generate_refreshToken(): string;
+  is_password_correct(password: string): Promise<boolean>;
+}
+
+export type UserDocument = HydratedDocument<IUser, UserMethods>;
 
 const passwordRequired = function (this: IUser): boolean {
   return !this.googleId && !this.githubId;
 };
 
-const userSchema = new Schema<IUser>(
+// userschema have user data types and also the instance methods types. the empty object represent static method we don't have any static method currently that's why its empty
+const userSchema = new Schema<IUser, {}, UserMethods>(
   {
     // Required for ALL users (signup)
     email: {
@@ -93,23 +101,21 @@ const userSchema = new Schema<IUser>(
 
 // has the password before saving the document into database
 userSchema.pre("save", async function () {
-  const user = this as UserDocument;
-
   // we are checking if password is already hashed or there is not any password if true don't continew and terminate the function
-  if (!user.isModified("password") || !user.password) {
+  if (!this.isModified("password") || !this.password) {
     return;
   }
 
   try {
     // we are using bun build in method to hash the password
-    user.password = await Bun.password.hash(user.password);
+    this.password = await Bun.password.hash(this.password);
   } catch (error) {
     throw new Error("Password hashing failed");
   }
 });
 
 // creating a instance method for generating access_token
-userSchema.methods.generate_access_token = function (this: IUser) {
+userSchema.methods.generate_accessToken = function () {
   // using sign method of jwt for creating access_token
   return jwt.sign(
     {
@@ -125,14 +131,13 @@ userSchema.methods.generate_access_token = function (this: IUser) {
 };
 
 userSchema.methods.is_password_correct = async function (password: string) {
-  const user = this as IUser
-  if (!user.password) {
-    return
+  if (!this.password) {
+    return false;
   }
-  return await Bun.password.verify(password, user.password)
+  return await Bun.password.verify(password, this.password);
 };
 
-userSchema.methods.generate_refresh_token = function (this: IUser) {
+userSchema.methods.generate_refreshToken = function () {
   // using sign method of jwt for creating refresh_token
   return jwt.sign(
     {
@@ -150,4 +155,7 @@ userSchema.index({ username: 1 }, { unique: true });
 userSchema.index({ email: 1 }, { unique: true });
 userSchema.index({ channelName: 1 });
 
-export const User = mongoose.model<IUser>("User", userSchema);
+export const User = mongoose.model<
+  IUser,
+  mongoose.Model<IUser, {}, UserMethods>
+>("User", userSchema);
