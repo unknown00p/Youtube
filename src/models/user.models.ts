@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { config } from "../config/config";
 import type { NextFunction } from "express";
 
-interface IUser {
+export interface IUser {
   _id: string;
   email: string;
   password?: string; // Optional based on auth providers
