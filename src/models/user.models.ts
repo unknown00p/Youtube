@@ -114,7 +114,7 @@ userSchema.pre("save", async function () {
   }
 });
 
-// creating a instance method for generating access_token
+// created a instance method for generating access_token
 userSchema.methods.generate_accessToken = function () {
   // using sign method of jwt for creating access_token
   return jwt.sign(
@@ -130,6 +130,7 @@ userSchema.methods.generate_accessToken = function () {
   );
 };
 
+// check if given password is correct(match with existing password from DB)
 userSchema.methods.is_password_correct = async function (password: string) {
   if (!this.password) {
     return false;
@@ -137,6 +138,7 @@ userSchema.methods.is_password_correct = async function (password: string) {
   return await Bun.password.verify(password, this.password);
 };
 
+// created a instance method for generating refresh_token
 userSchema.methods.generate_refreshToken = function () {
   // using sign method of jwt for creating refresh_token
   return jwt.sign(
@@ -155,6 +157,8 @@ userSchema.index({ username: 1 }, { unique: true });
 userSchema.index({ email: 1 }, { unique: true });
 userSchema.index({ channelName: 1 });
 
+
+// task: how it works
 export const User = mongoose.model<
   IUser,
   mongoose.Model<IUser, {}, UserMethods>
