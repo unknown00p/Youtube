@@ -31,7 +31,7 @@ export async function genrate_AccessRefresh_Token(userId: string) {
     };
   } catch (error) {
     console.log(error);
-    throw error
+    throw error;
   }
 }
 
@@ -40,11 +40,11 @@ async function signup_service({ username, email, password }: authType) {
 
   // check if any of the feilds is missing
   if (!username || !email || !password) {
-    throw new ApiError(404, "please provide all signup fields");
+    throw new ApiError(400, "please provide all signup fields");
   }
 
   // get the user from DB using email
-  const isUser = await User.find({ email: email });
+  const isUser = await User.findOne({ email: email });
 
   // check if the user aleardy exists in database(if yes user is already signed up)
   if (isUser) {
@@ -62,7 +62,26 @@ async function signup_service({ username, email, password }: authType) {
     throw new ApiError(400, "got while registring the user", user);
   }
 
-  return user;
+  // generating access and refresh token
+  const { accessToken, refreshToken } = await genrate_AccessRefresh_Token(
+    user._id
+  );
+
+  // adding the generated refresh token to DB
+  user.refreshToken = await Bun.password.hash(refreshToken)
+  user.save()
+
+  // saving the user with after removing refresh token and password from output
+  let safeUser = user.toObject()
+  delete safeUser.password
+  delete safeUser.refreshToken
+
+
+  return {
+    accessToken,
+    refreshToken,
+    safeUser
+  };
 }
 
 export { signup_service };

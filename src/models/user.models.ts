@@ -9,7 +9,7 @@ export interface IUser {
   password?: string; // Optional based on auth providers
   googleId?: string;
   githubId?: string;
-  refreshToken: string;
+  refreshToken?: string;
   username: string;
   channelName?: string;
   profilePicture?: string | null;
