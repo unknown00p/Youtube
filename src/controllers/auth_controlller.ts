@@ -3,12 +3,17 @@ import { asyncHandler } from "../utils/asyncHandler";
 import * as z from "zod";
 import {
   getCurrentUser_service,
+  getUserById_service,
   signIn_service,
   signOut_service,
   signUp_service,
 } from "../services/auth.service";
 import { ApiResponse } from "../utils/responseHandler";
-import { signin_z_data, signup_z_data } from "../zod/auth.z";
+import {
+  getUserById_z_data,
+  signin_z_data,
+  signup_z_data,
+} from "../zod/auth.z";
 
 const signUp_controller = asyncHandler(async (req: Request, res: Response) => {
   const { username, email, password } = signup_z_data.parse(req.body);
@@ -81,9 +86,23 @@ const getCurrentUser_controller = asyncHandler(
   }
 );
 
+const getUserById_controller = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { id: userId } = getUserById_z_data.parse(req.params);
+
+    // logic to get user details by id
+    const safeUser = await getUserById_service(String(userId));
+
+    res
+      .status(200)
+      .send(new ApiResponse(200, "User fetched successfully", { safeUser }));
+  }
+);
+
 export {
   signUp_controller,
   signIn_controller,
   signOut_controller,
   getCurrentUser_controller,
+  getUserById_controller,
 };

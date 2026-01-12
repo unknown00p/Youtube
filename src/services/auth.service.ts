@@ -146,9 +146,27 @@ async function getCurrentUser_service(userId: string) {
   return safeUser;
 }
 
+async function getUserById_service(userId: string) {
+  // get the user from DB using userId
+  const user = await User.findById(userId);
+
+  // check if the user exists in DB or not
+  if (!user) {
+    throw new ApiError(404, "user not found");
+  }
+
+  // return safe user data
+  const safeUser = user.toObject();
+  delete safeUser.refreshToken;
+  delete safeUser.password;
+
+  return safeUser;
+}
+
 export {
   signUp_service,
   signIn_service,
   signOut_service,
   getCurrentUser_service,
+  getUserById_service,
 };

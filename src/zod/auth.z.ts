@@ -10,3 +10,7 @@ export const signin_z_data = z.object({
   email: z.string().email(),
   password: z.string().min(8),
 });
+
+export const getUserById_z_data = z.object({
+  id: z.string().length(24),
+});
