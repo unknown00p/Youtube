@@ -2,7 +2,7 @@ import { User, type UserDocument } from "../models/user.models";
 import { ApiError } from "../utils/errorHandler";
 
 type authType = {
-  username: string;
+  username?: string;
   email: string;
   password: string;
 };
@@ -68,20 +68,70 @@ async function signup_service({ username, email, password }: authType) {
   );
 
   // adding the generated refresh token to DB
-  user.refreshToken = await Bun.password.hash(refreshToken)
-  user.save()
+  user.refreshToken = await Bun.password.hash(refreshToken);
+  user.save();
 
   // saving the user with after removing refresh token and password from output
-  let safeUser = user.toObject()
-  delete safeUser.password
-  delete safeUser.refreshToken
-
+  let safeUser = user.toObject();
+  delete safeUser.password;
+  delete safeUser.refreshToken;
 
   return {
     accessToken,
     refreshToken,
-    safeUser
+    safeUser,
   };
 }
 
-export { signup_service };
+async function signin_service({ email, password }: authType) {
+  // rest of the logic goes here
+
+  // check if any of the feilds is missing
+  if (!email || !password) {
+    throw new ApiError(400, "please provide all signip fields");
+  }
+
+  // get the user from DB using email
+  const user = await User.findOne({ email: email });
+
+  // check if the user aleardy exists in database(if yes user is already signed up)
+  if (!user) {
+    throw new ApiError(400, "user does not exists please signup please");
+  }
+
+  // generating access and refresh token
+  const { accessToken, refreshToken } = await genrate_AccessRefresh_Token(
+    user._id
+  );
+
+  // saving the user with after removing refresh token and password from output
+  let safeUser = user.toObject();
+  delete safeUser.password;
+  delete safeUser.refreshToken;
+
+  return {
+    accessToken,
+    refreshToken,
+    safeUser,
+  };
+}
+
+async function signout_service(userId: string) {
+  // get the user from DB using userId
+  const user = await User.findById(userId);
+
+  // check if the user exists in DB or not
+  if (!user) {
+    throw new ApiError(404, "user not found");
+  }
+
+  // clear the refresh token from DB
+  user.refreshToken = undefined;
+  user.save();
+
+  return {
+    message: "user signed out successfully",
+  };
+}
+
+export { signup_service, signin_service, signout_service };
