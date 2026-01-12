@@ -87,6 +87,13 @@ async function signIn_service({ email, password }: authType) {
     throw new ApiError(400, "user does not exists please signup please");
   }
 
+  // check if the given password is correct or not
+  const isPasswordCorrect = await user.is_password_correct(password);
+
+  if (!isPasswordCorrect) {
+    throw new ApiError(400, "incorrect password");
+  }
+
   // generating access and refresh token
   const { accessToken, refreshToken } = await genrate_AccessRefresh_Token(
     user._id
