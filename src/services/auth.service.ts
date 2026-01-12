@@ -35,14 +35,8 @@ export async function genrate_AccessRefresh_Token(userId: string) {
   }
 }
 
-async function signup_service({ username, email, password }: authType) {
+async function signUp_service({ username, email, password }: authType) {
   // rest of the logic goes here
-
-  // check if any of the feilds is missing
-  if (!username || !email || !password) {
-    throw new ApiError(400, "please provide all signup fields");
-  }
-
   // get the user from DB using email
   const isUser = await User.findOne({ email: email });
 
@@ -83,14 +77,8 @@ async function signup_service({ username, email, password }: authType) {
   };
 }
 
-async function signin_service({ email, password }: authType) {
+async function signIn_service({ email, password }: authType) {
   // rest of the logic goes here
-
-  // check if any of the feilds is missing
-  if (!email || !password) {
-    throw new ApiError(400, "please provide all signip fields");
-  }
-
   // get the user from DB using email
   const user = await User.findOne({ email: email });
 
@@ -116,7 +104,7 @@ async function signin_service({ email, password }: authType) {
   };
 }
 
-async function signout_service(userId: string) {
+async function signOut_service(userId: string) {
   // get the user from DB using userId
   const user = await User.findById(userId);
 
@@ -134,4 +122,26 @@ async function signout_service(userId: string) {
   };
 }
 
-export { signup_service, signin_service, signout_service };
+async function getCurrentUser_service(userId: string) {
+  // get the user from DB using userId
+  const user = await User.findById(userId);
+
+  // check if the user exists in DB or not
+  if (!user) {
+    throw new ApiError(404, "user not found");
+  }
+
+  // return safe user data
+  const safeUser = user.toObject();
+  delete safeUser.refreshToken;
+  delete safeUser.password;
+
+  return safeUser;
+}
+
+export {
+  signUp_service,
+  signIn_service,
+  signOut_service,
+  getCurrentUser_service,
+};

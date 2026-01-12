@@ -2,17 +2,18 @@ import type { Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncHandler";
 import * as z from "zod";
 import {
-  signin_service,
-  signout_service,
-  signup_service,
+  getCurrentUser_service,
+  signIn_service,
+  signOut_service,
+  signUp_service,
 } from "../services/auth.service";
 import { ApiResponse } from "../utils/responseHandler";
 import { signin_z_data, signup_z_data } from "../zod/auth.z";
 
-const signup_controller = asyncHandler(async (req: Request, res: Response) => {
+const signUp_controller = asyncHandler(async (req: Request, res: Response) => {
   const { username, email, password } = signup_z_data.parse(req.body);
 
-  const { accessToken, refreshToken, safeUser } = await signup_service({
+  const { accessToken, refreshToken, safeUser } = await signUp_service({
     username,
     email,
     password,
@@ -30,10 +31,10 @@ const signup_controller = asyncHandler(async (req: Request, res: Response) => {
     .send(new ApiResponse(201, "User signed up successfully", { safeUser }));
 });
 
-const signin_controller = asyncHandler(async (req: Request, res: Response) => {
+const signIn_controller = asyncHandler(async (req: Request, res: Response) => {
   const { email, password } = signin_z_data.parse(req.body);
 
-  const { accessToken, refreshToken, safeUser } = await signin_service({
+  const { accessToken, refreshToken, safeUser } = await signIn_service({
     email,
     password,
   });
@@ -50,10 +51,10 @@ const signin_controller = asyncHandler(async (req: Request, res: Response) => {
     .send(new ApiResponse(201, "User signed in successfully", { safeUser }));
 });
 
-const signout_controller = asyncHandler(async (req: Request, res: Response) => {
+const signOut_controller = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user?._id;
 
-  const { message } = await signout_service(String(userId));
+  const { message } = await signOut_service(String(userId));
 
   const options = {
     httpOnly: true,
@@ -67,4 +68,22 @@ const signout_controller = asyncHandler(async (req: Request, res: Response) => {
     .send(new ApiResponse(200, message, null));
 });
 
-export { signup_controller, signin_controller, signout_controller };
+const getCurrentUser_controller = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.user?._id;
+
+    // logic to get current user details
+    const safeUser = await getCurrentUser_service(String(userId));
+
+    res
+      .status(200)
+      .send(new ApiResponse(200, "User fetched successfully", { safeUser }));
+  }
+);
+
+export {
+  signUp_controller,
+  signIn_controller,
+  signOut_controller,
+  getCurrentUser_controller,
+};
