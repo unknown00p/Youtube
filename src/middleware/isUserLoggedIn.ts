@@ -4,10 +4,14 @@ import { config } from "../config/config";
 import { ApiError } from "../utils/errorHandler";
 import { User } from "../models/user.models";
 
-interface MyTokenPayload extends JwtPayload {
+interface MyAccessTokenPayload extends JwtPayload {
   _id: string;
   email: string;
   username: string;
+}
+
+export interface MyRefreshTokenPayload extends JwtPayload {
+  _id: string;
 }
 
 async function isUser_loggedIn(
@@ -28,7 +32,7 @@ async function isUser_loggedIn(
     const verify = jwt.verify(
       token,
       config.ACCESS_TOKEN_SECRET
-    ) as MyTokenPayload;
+    ) as MyAccessTokenPayload;
 
     if (!verify) {
       throw Error("access token is invalid");

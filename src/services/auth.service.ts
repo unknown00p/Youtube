@@ -1,5 +1,8 @@
+import { config } from "../config/config";
+import type { MyRefreshTokenPayload } from "../middleware/isUserLoggedIn";
 import { User, type UserDocument } from "../models/user.models";
 import { ApiError } from "../utils/errorHandler";
+import jwt from "jsonwebtoken";
 
 type authType = {
   username?: string;
@@ -163,10 +166,55 @@ async function getUserById_service(userId: string) {
   return safeUser;
 }
 
+async function refreshAccessToken_service(refreshTokenValue: string) {
+  // check if the token is valid
+  const valid = jwt.verify(
+    refreshTokenValue,
+    config.REFRESH_TOKEN_SECRET
+  ) as MyRefreshTokenPayload;
+
+  if (!valid) {
+    throw new ApiError(401, "refresh token is invalid");
+  }
+
+  // find the user in DB based on the data from token
+  const user = await User.findById(valid._id);
+
+  if (!user) {
+    throw new ApiError(404, "user not found");
+  }
+
+  // get the refresh token from DB
+  const refreshTokenDB = user.refreshToken;
+
+  const decodedRT = Bun.password.verify(
+    refreshTokenValue,
+    String(refreshTokenDB)
+  );
+
+  if (!decodedRT) {
+    throw new ApiError(401, "refresh token is invalid");
+  }
+
+  // now generate a new access and refresh tokens
+  const { accessToken, refreshToken } = await genrate_AccessRefresh_Token(
+    String(user._id)
+  );
+
+  user.refreshToken = await Bun.password.hash(refreshToken);
+  await user.save();
+
+  return {
+    accessToken,
+    refreshToken,
+  };
+}
+
 export {
   signUp_service,
   signIn_service,
   signOut_service,
   getCurrentUser_service,
   getUserById_service,
+  refreshAccessToken_service,
 };

@@ -4,6 +4,7 @@ import * as z from "zod";
 import {
   getCurrentUser_service,
   getUserById_service,
+  refreshAccessToken_service,
   signIn_service,
   signOut_service,
   signUp_service,
@@ -99,10 +100,42 @@ const getUserById_controller = asyncHandler(
   }
 );
 
+const refreshAccessToken_controller = asyncHandler(
+  async (req: Request, res: Response) => {
+    // first get the refresh token from request
+    const refreshTokenValue = req.cookies["refreshToken"];
+
+    if (!refreshTokenValue) {
+      throw new Error("refresh token not found");
+    }
+
+    // logic to refresh access token
+    const { accessToken, refreshToken } = await refreshAccessToken_service(
+      String(refreshTokenValue)
+    );
+
+    const options = {
+      httpOnly: true,
+      secure: true,
+    };
+
+    res
+      .status(200)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", refreshToken, options)
+      .send(
+        new ApiResponse(200, "Access token refreshed successfully", {
+          accessToken,
+        })
+      );
+  }
+);
+
 export {
   signUp_controller,
   signIn_controller,
   signOut_controller,
   getCurrentUser_controller,
   getUserById_controller,
+  refreshAccessToken_controller,
 };
