@@ -14,7 +14,7 @@ export interface IUser {
   channelName?: string;
   profilePicture?: string | null;
   bannerImage?: string | null;
-  description?: string | null;
+  bio?: string | null;
   isChannelSetup: boolean;
   stats: {
     subscriberCount: number;
@@ -83,7 +83,7 @@ const userSchema = new Schema<IUser, {}, UserMethods>(
       default: null, // for consistence feilds in database even its not given
     },
     bannerImage: { type: String, default: null },
-    description: { type: String, default: null },
+    bio: { type: String, default: null },
 
     // Channel Features
     isChannelSetup: { type: Boolean, default: false },
