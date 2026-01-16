@@ -1,6 +1,6 @@
 import mongoose, { Schema, Types } from "mongoose";
 
-export type PlaylistVisibility = "public" | "private" | "unlisted";
+export type PlaylistVisibility = "public" | "private";
 
 export interface IPlaylistVideo {
   video_id: Types.ObjectId;
@@ -27,7 +27,7 @@ const PlaylistSchema = new Schema<IPlaylist>(
       type: Schema.Types.ObjectId,
       ref: "User",
     }, // indexed
-    visibility: { type: String, enum: ["public", "private", "unlisted"] }, // 'public', 'private', 'unlisted'
+    visibility: { type: String, enum: ["public", "private"] },
 
     // Video references with ordering
     videos: [
