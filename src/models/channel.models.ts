@@ -12,7 +12,6 @@ interface Ichannel {
     videoCount: string;
     viewCount: string;
   };
-  channelSetupAt: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -48,8 +47,7 @@ const channelSchema = new Schema<Ichannel>(
       subscriberCount: { type: Number, default: 0 },
       videoCount: { type: Number, default: 0 },
       viewCount: { type: Number, default: 0 },
-    },
-    channelSetupAt: { type: Date, default: null },
+    }
   },
   { timestamps: true }
 );
