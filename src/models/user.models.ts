@@ -70,31 +70,6 @@ const userSchema = new Schema<IUser, {}, UserMethods>(
     refreshToken: {
       type: String,
     },
-
-    channelName: {
-      type: String,
-      sparse: true, // Allow multiple nulls
-      index: true,
-    }, // indexed
-
-    // Optional Profile Fields (set up later)
-    profilePicture: {
-      type: String,
-      default: null, // for consistence feilds in database even its not given
-    },
-    bannerImage: { type: String, default: null },
-    bio: { type: String, default: null },
-
-    // Channel Features
-    isChannelSetup: { type: Boolean, default: false },
-
-    // Stats
-    stats: {
-      subscriberCount: { type: Number, default: 0 },
-      videoCount: { type: Number, default: 0 },
-      viewCount: { type: Number, default: 0 },
-    },
-    channelSetupAt: { type: Date, default: null },
   },
   { timestamps: true }
 );
