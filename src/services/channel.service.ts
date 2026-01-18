@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Channel } from "../models/channel.models";
 import { ApiError } from "../utils/errorHandler";
 
@@ -6,39 +7,28 @@ interface ICreateChannel {
   channelName: string;
   handleName: string;
   profilePicture?: string;
-  bannerImage?: string;
-  discription?: string;
-  links?: {
-    logo?: string;
-    name?: string;
-    url?: string;
-  }[];
 }
 
-export async function createChannel_service({
+interface IUpdateChannel {
+  channelName: string;
+  handleName: string;
+  profilePicture?: string;
+  bannerImage?: string;
+  discription?: string;
+}
+
+async function createChannel_service({
   userId,
   channelName,
   handleName,
   profilePicture,
-  bannerImage,
-  discription,
-  links,
 }: ICreateChannel) {
   // Implementation for creating a channel
-
   const channel = await Channel.create({
     userId,
     channelName,
     handleName,
     profilePicture,
-    bannerImage,
-    discription,
-    links:
-      links?.map((link) => ({
-        logo: link.logo,
-        name: link.name,
-        url: link.url,
-      })) || [],
   });
 
   if (!channel) {
@@ -47,3 +37,36 @@ export async function createChannel_service({
 
   return channel;
 }
+
+async function updateChannel_service(
+  channelId: string,
+  updateData: Partial<IUpdateChannel>,
+) {
+  if (!channelId) {
+    throw new ApiError(400, "Channel ID is required");
+  }
+
+  const channel = await Channel.findByIdAndUpdate(
+    channelId,
+    {
+      $set: updateData,
+    },
+    { new: true },
+  );
+
+  if (!channel) {
+    throw new ApiError(404, "Channel not found");
+  }
+
+  return channel;
+}
+
+async function getChannelById_service(channelId: string) {
+  const channel = await Channel.findById(channelId);
+  if (!channel) {
+    throw new ApiError(404, "Channel not found");
+  }
+  return channel;
+}
+
+export { createChannel_service, updateChannel_service, getChannelById_service };
