@@ -65,6 +65,7 @@ const userSchema = new Schema<IUser, {}, UserMethods>(
       required: true,
       unique: true,
       index: true,
+      trim: true,
     }, // indexed
 
     refreshToken: {

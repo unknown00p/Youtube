@@ -3,6 +3,7 @@ import type { MyRefreshTokenPayload } from "../middleware/isUserLoggedIn";
 import { User, type UserDocument } from "../models/user.models";
 import { ApiError } from "../utils/errorHandler";
 import jwt from "jsonwebtoken";
+import { createChannel_service } from "./channel.service";
 
 type authType = {
   username?: string;

@@ -1,13 +1,15 @@
 import mongoose, { Schema, Types } from "mongoose";
 
 interface Ichannel {
+  userId: Types.ObjectId; // Reference to User model
   channelName: string;
   handleName: string;
   profilePicture: string; // nullable for anonymous users
   links: {
-    logo: string;
-    name: string;
-    url: string;
+    _id: Types.ObjectId;
+    logo?: string | null;
+    name?: string | null;
+    url?: string | null;
   }[];
   bannerImage: string; // seconds watched
   discription: string; // seconds watched
@@ -24,14 +26,22 @@ export type ChannelDocument = mongoose.HydratedDocument<Ichannel>;
 
 const channelSchema = new Schema<Ichannel>(
   {
+    userId: {
+      type: Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+
     channelName: {
       type: String,
-      required:true
+      required: true,
     },
 
     handleName: {
       type: String,
-      requred: true
+      required: true,
+      unique: true,
+      trim: true,
     },
 
     // Optional Profile Fields (set up later)
@@ -46,12 +56,18 @@ const channelSchema = new Schema<Ichannel>(
     links: {
       type: [
         {
+          // for future task to edit and delete links we can use this _id for effecient query operations
+          _id: { type: Types.ObjectId, auto: true },
           logo: { type: String, default: null },
           name: { type: String, default: null },
-          url: { type: String, default: null }
-        }
+          url: {
+            type: String,
+            default: null,
+            match: [/^https?:\/\/.+/, "Invalid URL"],
+          },
+        },
       ],
-      default: []
+      default: [],
     },
 
     // Channel Features
@@ -61,7 +77,7 @@ const channelSchema = new Schema<Ichannel>(
     stats: {
       subscriberCount: { type: Number, default: 0 },
       videoCount: { type: Number, default: 0 },
-    }
+    },
   },
   { timestamps: true }
 );
