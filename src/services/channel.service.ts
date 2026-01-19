@@ -62,11 +62,31 @@ async function updateChannel_service(
 }
 
 async function getChannelById_service(channelId: string) {
+  if (!channelId) {
+    throw new ApiError(400, "Channel ID is required");
+  }
+
   const channel = await Channel.findById(channelId);
+
   if (!channel) {
     throw new ApiError(404, "Channel not found");
   }
   return channel;
 }
+
+// async function deleteChannel_service(channelId: string) {
+//   // Implementation for deleting a channel
+//   if (!channelId) {
+//     throw new ApiError(400, "Channel ID is required");
+//   }
+
+//   const channel = await Channel.findByIdAndDelete(channelId);
+
+//   if (!channel) {
+//     throw new ApiError(404, "Channel not found");
+//   }
+
+//   return channel;
+// }
 
 export { createChannel_service, updateChannel_service, getChannelById_service };
