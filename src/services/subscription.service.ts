@@ -17,7 +17,6 @@ async function subscribeToChannel_service({
   subscriberId,
   channelId,
 }: ISubscriptionData) {
-
   const subscription = await Subscription.create({
     subscriberId,
     channelId,
@@ -46,7 +45,11 @@ async function unSubscribeToChannel_service({
   return unsubscribe;
 }
 
-async function getSubscribedChannelsOfUser_service({ userId, page, limit }:IGetSubscribedChannelsOfUser) {
+async function getSubscribedChannelsOfUser_service({
+  userId,
+  page,
+  limit,
+}: IGetSubscribedChannelsOfUser) {
   if (!userId) {
     throw new ApiError(400, "userId is required");
   }
@@ -61,14 +64,42 @@ async function getSubscribedChannelsOfUser_service({ userId, page, limit }:IGetS
     {
       $lookup: {
         from: "channels",
-        foreignField: "_id",
-        localField: "channelId",
+        let: { channelIdVar: "$channelId" },
+
+        // excluding the suspended channels
+        pipeline: [
+          {
+            $match: {
+              //allows you to use aggregation expressions within a query stage.
+              $expr: {
+
+                // allow multiple conditional oprations and retruns true if all the conditions are true
+                $and: [
+                  // match the channelId from subscription with _id of channel collection
+                  { 
+                    // method to compare two feilds
+                    $eq: ["$_id", "$$channelIdVar"] 
+                  },
+
+                  // excluding suspended channels
+                  { $eq: ["$status", "active"] },
+                ],
+              },
+            },
+          },
+        ],
         as: "channelData",
       },
     },
 
     // flating it to object
     { $unwind: "$channelData" },
+
+    // sorting the channels by createdAt date. from most recent one to oldest one
+    { $sort: { createdAt: -1 } },
+
+    { $skip: skip },
+    { $limit: limit },
 
     // selecting the neede feilds
     {
@@ -82,7 +113,7 @@ async function getSubscribedChannelsOfUser_service({ userId, page, limit }:IGetS
         subscriberCount: "$channelData.stats.subscriberCount",
       },
     },
-  ]).skip(skip).limit(limit);
+  ]);
 
   return subscribedChannels;
 }

@@ -15,6 +15,7 @@ import {
   signin_z_data,
   signup_z_data,
 } from "../zod/auth.z";
+import { ApiError } from "../utils/errorHandler";
 
 const signUp_controller = asyncHandler(async (req: Request, res: Response) => {
   const { username, email, password } = signup_z_data.parse(req.body);
@@ -60,7 +61,11 @@ const signIn_controller = asyncHandler(async (req: Request, res: Response) => {
 const signOut_controller = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user?._id;
 
-  const { message } = await signOut_service(String(userId));
+  if (!userId) {
+    throw new ApiError(401, "userId is required");
+  }
+
+  const { message } = await signOut_service(userId);
 
   const options = {
     httpOnly: true,
@@ -78,8 +83,12 @@ const getCurrentUser_controller = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = req.user?._id;
 
+    if (!userId) {
+      throw new ApiError(401, "userId is required");
+    }
+
     // logic to get current user details
-    const safeUser = await getCurrentUser_service(String(userId));
+    const safeUser = await getCurrentUser_service(userId);
 
     res
       .status(200)
@@ -92,7 +101,7 @@ const getUserById_controller = asyncHandler(
     const { id: userId } = getUserById_z_data.parse(req.params);
 
     // logic to get user details by id
-    const safeUser = await getUserById_service(String(userId));
+    const safeUser = await getUserById_service(userId);
 
     res
       .status(200)
@@ -111,7 +120,7 @@ const refreshAccessToken_controller = asyncHandler(
 
     // logic to refresh access token
     const { accessToken, refreshToken } = await refreshAccessToken_service(
-      String(refreshTokenValue)
+      refreshTokenValue
     );
 
     const options = {
