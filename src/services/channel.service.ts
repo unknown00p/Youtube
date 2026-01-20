@@ -42,10 +42,6 @@ async function updateChannel_service(
   channelId: string,
   updateData: Partial<IUpdateChannel>,
 ) {
-  if (!channelId) {
-    throw new ApiError(400, "Channel ID is required");
-  }
-
   const channel = await Channel.findByIdAndUpdate(
     channelId,
     {
@@ -62,9 +58,6 @@ async function updateChannel_service(
 }
 
 async function getChannelById_service(channelId: string) {
-  if (!channelId) {
-    throw new ApiError(400, "Channel ID is required");
-  }
 
   const channel = await Channel.findById(channelId);
 

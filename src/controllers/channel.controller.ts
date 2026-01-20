@@ -7,6 +7,7 @@ import {
   updateChannel_service,
 } from "../services/channel.service";
 import { ApiResponse } from "../utils/responseHandler";
+import { ApiError } from "../utils/errorHandler";
 
 const createChannel_Controller = asyncHandler(
   async (req: Request, res: Response) => {
@@ -15,6 +16,10 @@ const createChannel_Controller = asyncHandler(
       channelCreate_z_data.parse(req.body);
 
     const userId = req.user?._id;
+
+    if (!userId) {
+      throw new ApiError(400, "User not authenticated");
+    }
 
     const channel = await createChannel_service({
       userId: userId as string,
@@ -35,7 +40,11 @@ const updateChannel_Controller = asyncHandler(
     const updateData = channelUpdate_z_data.parse(req.body);
     const channelId = req.params.channelId;
 
-    const channel = await updateChannel_service(String(channelId), updateData);
+    if (!channelId) {
+      throw new ApiError(400, "Channel ID is required");
+    }
+
+    const channel = await updateChannel_service(channelId, updateData);
 
     res
       .status(200)
@@ -47,7 +56,11 @@ const getChannelById_Controller = asyncHandler(
   async (req: Request, res: Response) => {
     const channelId = req.params.channelId;
 
-    const channel = await getChannelById_service(String(channelId));
+    if (!channelId) {
+      throw new ApiError(400, "Channel ID is required");
+    }
+
+    const channel = await getChannelById_service(channelId);
 
     res
       .status(200)
@@ -55,4 +68,8 @@ const getChannelById_Controller = asyncHandler(
   },
 );
 
-export { createChannel_Controller, updateChannel_Controller, getChannelById_Controller };
+export {
+  createChannel_Controller,
+  updateChannel_Controller,
+  getChannelById_Controller,
+};

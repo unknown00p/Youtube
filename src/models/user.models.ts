@@ -72,7 +72,7 @@ const userSchema = new Schema<IUser, {}, UserMethods>(
       type: String,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // has the password before saving the document into database
@@ -102,7 +102,7 @@ userSchema.methods.generate_accessToken = function () {
     config.ACCESS_TOKEN_SECRET as string,
     {
       expiresIn: config.ACCESS_TOKEN_EXPIRATION as any,
-    }
+    },
   );
 };
 
@@ -124,7 +124,7 @@ userSchema.methods.generate_refreshToken = function () {
     config.REFRESH_TOKEN_SECRET as string,
     {
       expiresIn: config.REFRESH_TOKEN_EXPIRATION as any,
-    }
+    },
   );
 };
 
@@ -132,7 +132,6 @@ userSchema.methods.generate_refreshToken = function () {
 userSchema.index({ username: 1 }, { unique: true });
 userSchema.index({ email: 1 }, { unique: true });
 userSchema.index({ channelName: 1 });
-
 
 // task: how it works
 export const User = mongoose.model<
