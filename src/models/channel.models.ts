@@ -11,6 +11,7 @@ interface Ichannel {
     name?: string | null;
     url?: string | null;
   }[];
+  state: "active" | "suspended";
   bannerImage: string; // seconds watched
   discription: string; // seconds watched
   isChannelSetup: boolean; // seconds watched
@@ -52,6 +53,12 @@ const channelSchema = new Schema<Ichannel>(
 
     bannerImage: { type: String, default: null },
     discription: { type: String, default: null },
+
+    state: {
+      type: String,
+      enum: ["active", "suspended"],
+      default: "active",
+    },
 
     links: {
       type: [
