@@ -6,7 +6,7 @@ import express, {
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { connectDB } from "./db/db.ts";
-import { auth_router } from "./routes/user_auth.routes.ts";
+import { auth_router } from "./routes/auth.routes.ts";
 
 // configures server in express
 const app = express();
