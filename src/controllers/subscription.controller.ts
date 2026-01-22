@@ -1,16 +1,18 @@
 import type { Request, Response } from "express";
-import { asyncHandler } from "../utils/asyncHandler";
-import { getSubscribedChannelsOfUser_service, subscribeToChannel_service, unSubscribeToChannel_service } from "../services/subscription.service";
+import { asyncHandler } from "../utils/asyncFunctionWarper";
+import {
+  getSubscribedChannelsOfUser_service,
+  subscribeToChannel_service,
+  unSubscribeToChannel_service,
+} from "../services/subscription.service";
 import { ApiError } from "../utils/errorHandler";
-import { ApiResponse } from '../utils/responseHandler';
+import { ApiResponse } from "../utils/responseHandler";
 import z from "zod";
 
-const pageAndLimit = z.object(
-  {
-    page: z.int().min(1),
-    limit: z.int().min(1).max(100),
-  }
-)
+const pageAndLimit = z.object({
+  page: z.int().min(1),
+  limit: z.int().min(1).max(100),
+});
 
 const subscribeTochannel_controller = asyncHandler(
   async (req: Request, res: Response) => {
@@ -26,9 +28,15 @@ const subscribeTochannel_controller = asyncHandler(
       channelId,
     });
 
-    res.status(201).json(
-      new ApiResponse(201, "Subscribed to channel successfully", subscription)
-    )
+    res
+      .status(201)
+      .json(
+        new ApiResponse(
+          201,
+          "Subscribed to channel successfully",
+          subscription,
+        ),
+      );
   },
 );
 
@@ -46,9 +54,15 @@ const unSubscribeTochannel_controller = asyncHandler(
       channelId,
     });
 
-    res.status(201).json(
-      new ApiResponse(201, "unSubscribed to channel successfully", subscription)
-    )
+    res
+      .status(201)
+      .json(
+        new ApiResponse(
+          201,
+          "unSubscribed to channel successfully",
+          subscription,
+        ),
+      );
   },
 );
 
@@ -70,9 +84,15 @@ const getSubscribedChannelsOfUser_controller = asyncHandler(
       limit,
     });
 
-    res.status(200).json(
-      new ApiResponse(200, "Subscribed channels fetched successfully", subscriptions)
-    );
+    res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          "Subscribed channels fetched successfully",
+          subscriptions,
+        ),
+      );
   },
 );
 
@@ -80,4 +100,4 @@ export {
   subscribeTochannel_controller,
   unSubscribeTochannel_controller,
   getSubscribedChannelsOfUser_controller,
-}
+};

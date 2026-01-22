@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { asyncHandler } from "../utils/asyncHandler";
+import { asyncHandler } from "../utils/asyncFunctionWarper";
 import * as z from "zod";
 import {
   getCurrentUser_service,
@@ -93,7 +93,7 @@ const getCurrentUser_controller = asyncHandler(
     res
       .status(200)
       .send(new ApiResponse(200, "User fetched successfully", { safeUser }));
-  }
+  },
 );
 
 const getUserById_controller = asyncHandler(
@@ -106,7 +106,7 @@ const getUserById_controller = asyncHandler(
     res
       .status(200)
       .send(new ApiResponse(200, "User fetched successfully", { safeUser }));
-  }
+  },
 );
 
 const refreshAccessToken_controller = asyncHandler(
@@ -119,9 +119,8 @@ const refreshAccessToken_controller = asyncHandler(
     }
 
     // logic to refresh access token
-    const { accessToken, refreshToken } = await refreshAccessToken_service(
-      refreshTokenValue
-    );
+    const { accessToken, refreshToken } =
+      await refreshAccessToken_service(refreshTokenValue);
 
     const options = {
       httpOnly: true,
@@ -135,9 +134,9 @@ const refreshAccessToken_controller = asyncHandler(
       .send(
         new ApiResponse(200, "Access token refreshed successfully", {
           accessToken,
-        })
+        }),
       );
-  }
+  },
 );
 
 export {

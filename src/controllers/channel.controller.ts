@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { asyncHandler } from "../utils/asyncHandler";
+import { asyncHandler } from "../utils/asyncFunctionWarper";
 import { channelCreate_z_data, channelUpdate_z_data } from "../zod/channel.z";
 import {
   createChannel_service,
