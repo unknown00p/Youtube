@@ -16,6 +16,7 @@ export const UploadVideo_z_data = z.object({
     .max(5000, "Description cannot exceed 5000 characters")
     .default(""),
   video_url: z.string().url("Invalid video URL format"),
+  s3FileKey: z.string().min(1, "S3 file key is required"),
   thumbnail_url: z.string().url("Invalid thumbnail URL format"),
   duration: z.number().positive("Duration must be a positive number"),
   

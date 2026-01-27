@@ -3,7 +3,12 @@ import { unlink } from "fs/promises";
 import fs from 'fs';
 import { S3_client } from "../../config/S3.config";
 
-const uploadImageToS3 = async (file: Express.Multer.File): Promise<string> => {
+type UploadResult = {
+    key: string;
+    url: string;
+};
+
+const uploadFileToS3 = async (file: Express.Multer.File): Promise<UploadResult> => {
     // 1. Prepare the file body (Stream or Buffer)
     let fileBody;
     if (file.path) {
@@ -15,7 +20,7 @@ const uploadImageToS3 = async (file: Express.Multer.File): Promise<string> => {
     }
 
     // 2. Prepare the Unique Key
-    const fileName = `uploads/${Date.now()}-${file.originalname.replace(/\s+/g, '-')}`;
+    const s3Key = `uploads/${file.filename}`;
 
     try {
         // 3. Use the Upload utility (Handles multipart automatically)
@@ -23,7 +28,7 @@ const uploadImageToS3 = async (file: Express.Multer.File): Promise<string> => {
             client: S3_client,
             params: {
                 Bucket: process.env.B2_BUCKET_NAME,
-                Key: fileName,
+                Key: s3Key,
                 Body: fileBody,
                 ContentType: file.mimetype,
             },
@@ -42,22 +47,25 @@ const uploadImageToS3 = async (file: Express.Multer.File): Promise<string> => {
 
         // 6. Return the Public URL
         // Backblaze specific URL construction
-        return `https://${process.env.B2_BUCKET_NAME}.s3.${process.env.B2_REGION}.backblazeb2.com/${fileName}`;
+        return {
+            key:s3Key,
+            url:`https://${process.env.B2_BUCKET_NAME}.s3.${process.env.B2_REGION}.backblazeb2.com/${s3Key}`
+        }
 
     } catch (error) {
         console.error("S3 Upload Error:", error);
         // Ensure cleanup happens even on error
         if (file.path) await unlink(file.path).catch(() => {}); 
-        throw new Error("Failed to upload image.");
+        throw new Error("Failed to upload file.");
     }
 };
 
 /**
  * Handle Multiple Files
  */
-const uploadMultipleImagesToS3 = async (files: Express.Multer.File[]): Promise<string[]> => {
-    const uploadPromises = files.map((file) => uploadImageToS3(file));
+const uploadMultipleFilesToS3 = async (files: Express.Multer.File[]): Promise<UploadResult[]> => {
+    const uploadPromises = files.map((file) => uploadFileToS3(file));
     return Promise.all(uploadPromises);
 };
 
-export { uploadImageToS3, uploadMultipleImagesToS3 };
+export { uploadFileToS3, uploadMultipleFilesToS3 };

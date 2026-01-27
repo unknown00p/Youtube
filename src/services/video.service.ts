@@ -7,6 +7,7 @@ export interface IUploadVideoData {
   video_url: string;
   thumbnail_url: string;
   duration: number;
+  s3FileKey: string;
   
   tags: string[];
   category: string;
