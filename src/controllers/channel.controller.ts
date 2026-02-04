@@ -4,6 +4,7 @@ import { channelCreate_z_data, channelUpdate_z_data } from "../zod/channel.z";
 import {
   createChannel_service,
   getChannelById_service,
+  getVideosOfChannel,
   updateChannel_service,
 } from "../services/channel.service";
 import { ApiResponse } from "../utils/responseHandler";
@@ -68,8 +69,31 @@ const getChannelById_Controller = asyncHandler(
   },
 );
 
+const getVideosOfChannel_Controller = asyncHandler(
+  async (req: Request, res: Response) => {
+    const channelId = req.params.channelId;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    if (!channelId) {
+      throw new ApiError(400, "Channel ID is required");
+    }
+
+    const videos = await getVideosOfChannel({
+      channelId,
+      page,
+      limit,
+    });
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, "Videos fetched successfully", videos));
+  },
+);
+
 export {
   createChannel_Controller,
   updateChannel_Controller,
   getChannelById_Controller,
+  getVideosOfChannel_Controller,
 };

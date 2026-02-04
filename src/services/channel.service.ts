@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { Channel } from "../models/channel.models";
 import { ApiError } from "../utils/errorHandler";
+import { Video } from "../models/video.models";
 
 interface ICreateChannel {
   userId: string;
@@ -15,6 +16,12 @@ interface IUpdateChannel {
   profilePicture?: string;
   bannerImage?: string;
   discription?: string;
+}
+
+interface IGetVideosOfChannel {
+  channelId: string;
+  page: number;
+  limit: number;
 }
 
 async function createChannel_service({
@@ -58,7 +65,6 @@ async function updateChannel_service(
 }
 
 async function getChannelById_service(channelId: string) {
-
   const channel = await Channel.findById(channelId);
 
   if (!channel) {
@@ -67,7 +73,22 @@ async function getChannelById_service(channelId: string) {
   return channel;
 }
 
+async function getVideosOfChannel({
+  channelId,
+  page,
+  limit,
+}: IGetVideosOfChannel) {
+  const videos = await Video.find({ channel_id: channelId })
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit);
 
+  if (videos.length === 0) {
+    throw new ApiError(404, "No videos found for this channel");
+  }
+
+  return videos;
+}
 
 // async function deleteChannel_service(channelId: string) {
 //   // Implementation for deleting a channel
@@ -84,4 +105,9 @@ async function getChannelById_service(channelId: string) {
 //   return channel;
 // }
 
-export { createChannel_service, updateChannel_service, getChannelById_service };
+export {
+  createChannel_service,
+  updateChannel_service,
+  getChannelById_service,
+  getVideosOfChannel,
+};
