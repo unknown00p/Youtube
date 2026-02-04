@@ -6,3 +6,7 @@ const connection = {
 };
 
 const videoQueue = new Queue("videoQueue", { connection });
+
+export {
+  videoQueue,
+}
