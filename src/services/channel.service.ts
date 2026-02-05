@@ -15,7 +15,7 @@ interface IUpdateChannel {
   handleName: string;
   profilePicture?: string;
   bannerImage?: string;
-  discription?: string;
+  description?: string;
 }
 
 interface IGetVideosOfChannel {
@@ -24,7 +24,7 @@ interface IGetVideosOfChannel {
   limit: number;
 }
 
-async function createChannel_service({
+async function createChannelProfile_service({
   userId,
   channelName,
   handleName,
@@ -45,7 +45,7 @@ async function createChannel_service({
   return channel;
 }
 
-async function updateChannel_service(
+async function updateChannelProfile_service(
   channelId: string,
   updateData: Partial<IUpdateChannel>,
 ) {
@@ -73,7 +73,7 @@ async function getChannelById_service(channelId: string) {
   return channel;
 }
 
-async function getVideosOfChannel({
+async function getVideosOfChannel_service({
   channelId,
   page,
   limit,
@@ -88,6 +88,11 @@ async function getVideosOfChannel({
   }
 
   return videos;
+}
+
+async function createFeaturedPageOfChannel_service(channelId: string) {
+  
+  return;
 }
 
 // async function deleteChannel_service(channelId: string) {
@@ -106,8 +111,8 @@ async function getVideosOfChannel({
 // }
 
 export {
-  createChannel_service,
-  updateChannel_service,
+  createChannelProfile_service,
+  updateChannelProfile_service,
   getChannelById_service,
-  getVideosOfChannel,
+  getVideosOfChannel_service,
 };

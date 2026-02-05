@@ -1,5 +1,4 @@
 import mongoose, { Schema, Types } from "mongoose";
-import { s3 } from 'bun';
 
 interface IVideo {
   title: string;
@@ -56,6 +55,8 @@ const videoSchema = new Schema<IVideo>(
       enum: ["processing", "published", "failed"],
       default: "processing",
     }, // 'processing', 'published', 'failed'
+
+    
 
     // Engagement metrics (denormalized for performance)
     view_count: { type: Number, default: 0 },
