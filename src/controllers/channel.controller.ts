@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncFunctionWarper";
 import { channelCreate_z_data, channelUpdate_z_data } from "../zod/channel.z";
 import {
+  addSectionToFeaturedTab_service,
   createChannelProfile_service,
   getChannelById_service,
   getVideosOfChannel_service,
@@ -91,25 +92,30 @@ const getVideosOfChannel_Controller = asyncHandler(
   },
 );
 
-const addSectionToFeaturedTab_Controller = asyncHandler(async (req: Request, res: Response) => {
-  // logic to create a featured page for a channel
-  const channelId = req.params.channelId;
-  const { sectionType, title, layout } = req.body;
+const addSectionToFeaturedTab_Controller = asyncHandler(
+  async (req: Request, res: Response) => {
+    // logic to create a featured page for a channel
+    const channelId = req.params.channelId;
+    const { sectionType, title, layout, contentType } = req.body;
 
-  if (!channelId) {
-    throw new ApiError(400, "Channel ID is required");
-  }
+    if (!channelId) {
+      throw new ApiError(400, "Channel ID is required");
+    }
 
-  // Example logic for creating a featured page section
-  const featuredPage = await createFeaturedPageOfChannel_service({
-    channelId,
-    sectionType,
-    title,
-    layout,
-  });
+    // Example logic for creating a featured page section
+    const featuredPage = await addSectionToFeaturedTab_service(channelId);
 
-  res.status(201).json(new ApiResponse(201, "Featured page created successfully", featuredPage));
-});
+    res
+      .status(201)
+      .json(
+        new ApiResponse(
+          201,
+          "Featured page created successfully",
+          featuredPage,
+        ),
+      );
+  },
+);
 
 export {
   createChannelProfile_Controller,

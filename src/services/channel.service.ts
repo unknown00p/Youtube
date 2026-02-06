@@ -90,7 +90,7 @@ async function getVideosOfChannel_service({
   return videos;
 }
 
-async function createFeaturedPageOfChannel_service(channelId: string) {
+async function addSectionToFeaturedTab_service(channelId: string) {
   
   return;
 }
@@ -115,4 +115,5 @@ export {
   updateChannelProfile_service,
   getChannelById_service,
   getVideosOfChannel_service,
+  addSectionToFeaturedTab_service
 };
