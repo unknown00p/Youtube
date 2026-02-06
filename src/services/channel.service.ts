@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { Channel } from "../models/channel.models";
 import { ApiError } from "../utils/errorHandler";
 import { Video } from "../models/video.models";
+import { v4 as uuid } from "uuid";
 
 interface ICreateChannel {
   userId: string;
@@ -22,6 +23,15 @@ interface IGetVideosOfChannel {
   channelId: string;
   page: number;
   limit: number;
+}
+
+interface IAddSectionToFeaturedTab {
+  channelId: string;
+  sectionKind: "single" | "multiple";
+  title?: string;
+  layout: "horizontal" | "vertical";
+  contentReferences: string[];
+  contentType: "Video" | "Post" | "Playlist" | "Shorts";
 }
 
 async function createChannelProfile_service({
@@ -90,9 +100,39 @@ async function getVideosOfChannel_service({
   return videos;
 }
 
-async function addSectionToFeaturedTab_service(channelId: string) {
-  
-  return;
+async function addSectionToFeaturedTab_service({
+  channelId,
+  sectionKind,
+  title,
+  layout,
+  contentReferences,
+  contentType,
+}: IAddSectionToFeaturedTab) {
+
+  const sectionId = uuid()
+
+  const section = await Channel.findByIdAndUpdate(
+    channelId,
+    {
+      $push: {
+        homeSections: {
+          sectionId,
+          sectionKind,
+          title,
+          layout,
+          contentReferences,
+          contentType,
+        },
+      },
+    },
+    { new: true, runValidators: true },
+  );
+
+  if (!section) {
+    throw new ApiError(500, "got error while adding section to featured tab");
+  }
+
+  return section;
 }
 
 // async function deleteChannel_service(channelId: string) {
@@ -115,5 +155,5 @@ export {
   updateChannelProfile_service,
   getChannelById_service,
   getVideosOfChannel_service,
-  addSectionToFeaturedTab_service
+  addSectionToFeaturedTab_service,
 };

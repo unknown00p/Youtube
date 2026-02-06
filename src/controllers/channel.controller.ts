@@ -1,6 +1,10 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncFunctionWarper";
-import { channelCreate_z_data, channelUpdate_z_data } from "../zod/channel.z";
+import {
+  channelCreate_z_data,
+  channelUpdate_z_data,
+  addSectionToFeaturedTab_z_data,
+} from "../zod/channel.z";
 import {
   addSectionToFeaturedTab_service,
   createChannelProfile_service,
@@ -96,14 +100,22 @@ const addSectionToFeaturedTab_Controller = asyncHandler(
   async (req: Request, res: Response) => {
     // logic to create a featured page for a channel
     const channelId = req.params.channelId;
-    const { sectionType, title, layout, contentType } = req.body;
+    const { sectionKind, title, layout, contentReferences, contentType } =
+      addSectionToFeaturedTab_z_data.parse(req.body);
 
     if (!channelId) {
       throw new ApiError(400, "Channel ID is required");
     }
 
     // Example logic for creating a featured page section
-    const featuredPage = await addSectionToFeaturedTab_service(channelId);
+    const featuredPage = await addSectionToFeaturedTab_service({
+      channelId,
+      sectionKind,
+      title,
+      layout,
+      contentReferences,
+      contentType,
+    });
 
     res
       .status(201)
@@ -122,4 +134,5 @@ export {
   updateChannelProfile_Controller,
   getChannelById_Controller,
   getVideosOfChannel_Controller,
+  addSectionToFeaturedTab_Controller
 };

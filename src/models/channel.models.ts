@@ -1,7 +1,7 @@
 import mongoose, { Schema, Types } from "mongoose";
 
 interface IHomeSection {
-  _id: string; // Unique identifier for the section
+  sectionId: string; // Unique identifier for the section
   sectionKind: "single" | "multiple";
   title?: string;
   layout: "horizontal" | "vertical";
@@ -36,7 +36,7 @@ interface Ichannel {
 
 const homeSectionSchema = new Schema<IHomeSection>(
   {
-    _id: { type: String, required: true },
+    sectionId: { type: String, required: true },
     sectionKind: {
       type: String,
       enum: ["single", "multiple"],

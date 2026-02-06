@@ -13,3 +13,11 @@ export const channelUpdate_z_data = z.object({
   bannerImage: z.string().url().optional(),
   discription: z.string().max(200).optional(),
 });
+
+export const addSectionToFeaturedTab_z_data = z.object({
+  sectionKind: z.enum(["single", "multiple"]),
+  title: z.string().max(50).optional(),
+  layout: z.enum(["horizontal", "vertical"]),
+  contentReferences: z.array(z.string()).min(1, "At least one content reference is required"),
+  contentType: z.enum(["Video", "Post", "Playlist", "Shorts"]),
+})
