@@ -29,7 +29,7 @@ const videoSchema = new Schema<IVideo>(
     description: { type: String, required: true }, // text search
     channel_id: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Channel",
     }, // reference to user's channel
 
     // Media information

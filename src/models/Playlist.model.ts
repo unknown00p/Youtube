@@ -25,7 +25,7 @@ const PlaylistSchema = new Schema<IPlaylist>(
     name: { type: String, required: true },
     owner_id: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Channel",
     }, // indexed
     visibility: { type: String, enum: ["public", "private"] },
 

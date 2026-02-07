@@ -3,6 +3,7 @@ import { Channel } from "../models/channel.models";
 import { ApiError } from "../utils/errorHandler";
 import { Video } from "../models/video.models";
 import { v4 as uuid } from "uuid";
+import { Playlist } from "../models/Playlist.model";
 
 interface ICreateChannel {
   userId: string;
@@ -33,6 +34,60 @@ interface IAddSectionToFeaturedTab {
   contentReferences: string[];
   contentType: "Video" | "Post" | "Playlist" | "Shorts";
 }
+
+interface IRefrenceType {
+  channelId: string;
+  contentReferences: string[];
+  contentType: "Video" | "Post" | "Playlist" | "Shorts";
+}
+
+const validateContentRefrenceType = async ({
+  channelId,
+  contentReferences,
+  contentType,
+}: IRefrenceType) => {
+  // find if there is any duplicate id's in refrenceArray
+  // create a new array with removed duplicated id's
+  const uniqueIds = new Set(contentReferences);
+
+  // check if there is any duplicate in orignal array
+  if (uniqueIds.size !== contentReferences.length) {
+    throw new ApiError(400, "Please remove the duplicate video");
+  }
+
+  if (contentType === "Video") {
+    const videos = await Video.find({
+      _id: { $in: contentReferences },
+      channel_id: channelId,
+      visibility: "public",
+    });
+
+    if (contentReferences.length !== videos.length) {
+      throw new ApiError(
+        400,
+        "One or more content references are invalid or not accessible",
+      );
+    }
+  } else if (contentType === "Post") {
+    // Currently we don't have a Post model, but if we did, we would implement similar validation logic here to ensure that the referenced posts exist and belong to the channel.
+  } else if (contentType === "Playlist") {
+    // Handle Playlist content type validation if needed
+    const playlists = await Playlist.find({
+      _id: { $in: contentReferences },
+      owner_id: channelId,
+      visibility: "public"
+    })
+
+    if (contentReferences.length !== playlists.length) {
+      throw new ApiError(400, `One or more content references are invalid or not accessible`);
+    }
+
+  } else if (contentType === "Shorts") {
+    // Currently we don't have a Shorts model, but if we did, we would implement similar validation logic here to ensure that the referenced shorts exist and belong to the channel.
+  }
+
+  return true
+};
 
 async function createChannelProfile_service({
   userId,
@@ -108,8 +163,9 @@ async function addSectionToFeaturedTab_service({
   contentReferences,
   contentType,
 }: IAddSectionToFeaturedTab) {
+  const sectionId = uuid();
 
-  const sectionId = uuid()
+  await validateContentRefrenceType({channelId,contentReferences,contentType})
 
   const section = await Channel.findByIdAndUpdate(
     channelId,
