@@ -75,18 +75,20 @@ const validateContentRefrenceType = async ({
     const playlists = await Playlist.find({
       _id: { $in: contentReferences },
       owner_id: channelId,
-      visibility: "public"
-    })
+      visibility: "public",
+    });
 
     if (contentReferences.length !== playlists.length) {
-      throw new ApiError(400, `One or more content references are invalid or not accessible`);
+      throw new ApiError(
+        400,
+        `One or more content references are invalid or not accessible`,
+      );
     }
-
   } else if (contentType === "Shorts") {
     // Currently we don't have a Shorts model, but if we did, we would implement similar validation logic here to ensure that the referenced shorts exist and belong to the channel.
   }
 
-  return true
+  return true;
 };
 
 async function createChannelProfile_service({
@@ -129,8 +131,8 @@ async function updateChannelProfile_service(
   return channel;
 }
 
-async function getChannelById_service(channelId: string) {
-  const channel = await Channel.findById(channelId);
+async function getProfileOfChannelById_service(channelId: string) {
+  const channel = await Channel.findById(channelId).select("userId channelName handleName profilePicture bannerImage description links stats");
 
   if (!channel) {
     throw new ApiError(404, "Channel not found");
@@ -165,10 +167,17 @@ async function addSectionToFeaturedTab_service({
 }: IAddSectionToFeaturedTab) {
   const sectionId = uuid();
 
-  await validateContentRefrenceType({channelId,contentReferences,contentType})
+  await validateContentRefrenceType({
+    channelId,
+    contentReferences,
+    contentType,
+  });
 
   const section = await Channel.findByIdAndUpdate(
-    channelId,
+    {
+      _id: channelId,
+      "homeSections.11": { $exists: false },
+    },
     {
       $push: {
         homeSections: {
@@ -191,6 +200,16 @@ async function addSectionToFeaturedTab_service({
   return section;
 }
 
+async function getHomeOfChannel_service(channelId: string) {
+  const homeSection = await Channel.findById(channelId).select("homeSections");
+
+  if (!homeSection) {
+    throw new ApiError(404, "Channel not found");
+  }
+
+  return homeSection;
+}
+
 // async function deleteChannel_service(channelId: string) {
 //   // Implementation for deleting a channel
 //   if (!channelId) {
@@ -209,7 +228,8 @@ async function addSectionToFeaturedTab_service({
 export {
   createChannelProfile_service,
   updateChannelProfile_service,
-  getChannelById_service,
+  getProfileOfChannelById_service,
   getVideosOfChannel_service,
   addSectionToFeaturedTab_service,
+  getHomeOfChannel_service
 };

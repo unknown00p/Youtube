@@ -8,9 +8,10 @@ import {
 import {
   addSectionToFeaturedTab_service,
   createChannelProfile_service,
-  getChannelById_service,
+  getProfileOfChannelById_service,
   getVideosOfChannel_service,
   updateChannelProfile_service,
+  getHomeOfChannel_service
 } from "../services/channel.service";
 import { ApiResponse } from "../utils/responseHandler";
 import { ApiError } from "../utils/errorHandler";
@@ -58,7 +59,7 @@ const updateChannelProfile_Controller = asyncHandler(
   },
 );
 
-const getChannelById_Controller = asyncHandler(
+const getProfileOfChannelById_Controller = asyncHandler(
   async (req: Request, res: Response) => {
     const channelId = req.params.channelId;
 
@@ -66,7 +67,7 @@ const getChannelById_Controller = asyncHandler(
       throw new ApiError(400, "Channel ID is required");
     }
 
-    const channel = await getChannelById_service(channelId);
+    const channel = await getProfileOfChannelById_service(channelId);
 
     res
       .status(200)
@@ -129,10 +130,27 @@ const addSectionToFeaturedTab_Controller = asyncHandler(
   },
 );
 
+const getHomeOfChannel_Controller = asyncHandler(
+  async (req: Request, res: Response) => {
+    const channelId = req.params.channelId;
+
+    if (!channelId) {
+      throw new ApiError(400, "Channel ID is required");
+    }
+
+    const homeSection = await getHomeOfChannel_service(channelId);
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, "Home section fetched successfully", homeSection));
+  },
+);
+
 export {
   createChannelProfile_Controller,
   updateChannelProfile_Controller,
-  getChannelById_Controller,
+  getProfileOfChannelById_Controller,
   getVideosOfChannel_Controller,
-  addSectionToFeaturedTab_Controller
+  addSectionToFeaturedTab_Controller,
+  getHomeOfChannel_Controller
 };
