@@ -11,7 +11,7 @@ interface IHomeSection {
 
 // 1. Updated Interface
 interface Ichannel {
-  userId: Types.ObjectId;
+  ownerId: Types.ObjectId;
   channelName: string;
   handleName: string;
   profilePicture: string;
@@ -77,7 +77,7 @@ const homeSectionSchema = new Schema<IHomeSection>(
 
 const channelSchema = new Schema<Ichannel>(
   {
-    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    ownerId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     channelName: { type: String, required: true },
     handleName: { type: String, required: true, unique: true, trim: true },
     profilePicture: { type: String, default: null },

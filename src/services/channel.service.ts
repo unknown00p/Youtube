@@ -28,6 +28,7 @@ interface IGetVideosOfChannel {
 
 interface IAddSectionToFeaturedTab {
   channelId: string;
+  userId: string;
   pinned?: boolean;
   sectionKind: "single" | "multiple";
   title?: string;
@@ -43,11 +44,13 @@ interface IRefrenceType {
 
 interface IContentToSection {
   channelId: string;
+  userId: string;
   sectionId: string;
   contentReferences: string;
   contentType: "Video" | "Post" | "Playlist" | "Shorts";
 }
 
+// helpers
 const validateContentRefrenceType = async ({
   channelId,
   contentReferences,
@@ -97,6 +100,25 @@ const validateContentRefrenceType = async ({
   return true;
 };
 
+const assertChannelOwnership = async (userId: string, channelId: string) => {
+  if (!userId || !channelId) {
+    throw new ApiError(400, "User ID and Channel ID are required");
+  }
+
+  const channel = await Channel.findOne({
+    _id: channelId,
+    userId: userId,
+  });
+
+  if (!channel) {
+    throw new ApiError(
+      404,
+      "You do not have permission to modify this channel",
+    );
+  }
+};
+
+// services
 async function createChannelProfile_service({
   userId,
   channelName,
@@ -105,7 +127,7 @@ async function createChannelProfile_service({
 }: ICreateChannel) {
   // Implementation for creating a channel
   const channel = await Channel.create({
-    userId,
+    ownerId: userId,
     channelName,
     handleName,
     profilePicture,
@@ -120,10 +142,11 @@ async function createChannelProfile_service({
 
 async function updateChannelProfile_service(
   channelId: string,
+  userId: string,
   updateData: Partial<IUpdateChannel>,
 ) {
-  const channel = await Channel.findByIdAndUpdate(
-    channelId,
+  const channel = await Channel.findOneAndUpdate(
+    { _id: channelId, ownerId: userId },
     {
       $set: updateData,
     },
@@ -184,6 +207,7 @@ async function getPlaylistsOfChannel_service({
 
 async function addSectionToFeaturedTab_service({
   channelId,
+  userId,
   pinned,
   sectionKind,
   title,
@@ -198,9 +222,10 @@ async function addSectionToFeaturedTab_service({
     contentType,
   });
 
-  const section = await Channel.findByIdAndUpdate(
+  const section = await Channel.findOneAndUpdate(
     {
       _id: channelId,
+      ownerId: userId,
       "homeSections.11": { $exists: false },
     },
     {
@@ -227,6 +252,7 @@ async function addSectionToFeaturedTab_service({
 
 async function addContentToSection_service({
   channelId,
+  userId,
   sectionId,
   contentReferences,
   contentType,
@@ -242,6 +268,7 @@ async function addContentToSection_service({
   const section = await Channel.findOneAndUpdate(
     {
       _id: channelId,
+      ownerId: userId,
       "homeSections.sectionId": sectionId,
     },
     {
@@ -266,6 +293,7 @@ async function addContentToSection_service({
 
 async function removeContentOfSection_service({
   channelId,
+  userId,
   sectionId,
   contentReferences,
   contentType,
@@ -281,6 +309,7 @@ async function removeContentOfSection_service({
   const section = await Channel.findOneAndUpdate(
     {
       _id: channelId,
+      ownerId: userId,
       "homeSections.sectionId": sectionId,
     },
     {
@@ -315,12 +344,14 @@ async function getHomeOfChannel_service(channelId: string) {
 
 async function updateSectionTitle_service(
   channelId: string,
+  userId: string,
   sectionId: string,
   title: string,
 ) {
   const section = await Channel.findOneAndUpdate(
     {
       _id: channelId,
+      ownerId: userId,
       "homeSections.sectionId": sectionId,
     },
     {
@@ -338,20 +369,31 @@ async function updateSectionTitle_service(
   return section;
 }
 
-// async function deleteChannel_service(channelId: string) {
-//   // Implementation for deleting a channel
-//   if (!channelId) {
-//     throw new ApiError(400, "Channel ID is required");
-//   }
+async function deleteChannel_service(channelId: string, userId: string) {
+  // Implementation for deleting a channel
+  if (!channelId) {
+    throw new ApiError(400, "Channel ID is required");
+  }
 
-//   const channel = await Channel.findByIdAndDelete(channelId);
+  const channel = await Channel.findOneAndUpdate(
+    {
+      _id: channelId,
+      ownerId: userId,
+    },
+    {
+      $set: {
+        state: "suspended",
+      },
+    },
+    { new: true },
+  ).select("_id");
 
-//   if (!channel) {
-//     throw new ApiError(404, "Channel not found");
-//   }
+  if (!channel) {
+    throw new ApiError(404, "Channel not found");
+  }
 
-//   return channel;
-// }
+  return channel;
+}
 
 export {
   createChannelProfile_service,
@@ -363,5 +405,6 @@ export {
   addSectionToFeaturedTab_service,
   addContentToSection_service,
   removeContentOfSection_service,
-  updateSectionTitle_service
+  updateSectionTitle_service,
+  deleteChannel_service
 };
