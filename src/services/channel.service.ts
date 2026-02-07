@@ -28,9 +28,9 @@ interface IGetVideosOfChannel {
 
 interface IAddSectionToFeaturedTab {
   channelId: string;
+  pinned?: boolean;
   sectionKind: "single" | "multiple";
   title?: string;
-  layout: "horizontal" | "vertical";
   contentReferences: string[];
   contentType: "Video" | "Post" | "Playlist" | "Shorts";
 }
@@ -38,6 +38,13 @@ interface IAddSectionToFeaturedTab {
 interface IRefrenceType {
   channelId: string;
   contentReferences: string[];
+  contentType: "Video" | "Post" | "Playlist" | "Shorts";
+}
+
+interface IContentToSection {
+  channelId: string;
+  sectionId: string;
+  contentReferences: string;
   contentType: "Video" | "Post" | "Playlist" | "Shorts";
 }
 
@@ -68,10 +75,7 @@ const validateContentRefrenceType = async ({
         "One or more content references are invalid or not accessible",
       );
     }
-  } else if (contentType === "Post") {
-    // Currently we don't have a Post model, but if we did, we would implement similar validation logic here to ensure that the referenced posts exist and belong to the channel.
   } else if (contentType === "Playlist") {
-    // Handle Playlist content type validation if needed
     const playlists = await Playlist.find({
       _id: { $in: contentReferences },
       owner_id: channelId,
@@ -86,6 +90,8 @@ const validateContentRefrenceType = async ({
     }
   } else if (contentType === "Shorts") {
     // Currently we don't have a Shorts model, but if we did, we would implement similar validation logic here to ensure that the referenced shorts exist and belong to the channel.
+  } else if (contentType === "Post") {
+    // Currently we don't have a Post model, but if we did, we would implement similar validation logic here to ensure that the referenced posts exist and belong to the channel.
   }
 
   return true;
@@ -131,8 +137,10 @@ async function updateChannelProfile_service(
   return channel;
 }
 
-async function getProfileOfChannelById_service(channelId: string) {
-  const channel = await Channel.findById(channelId).select("userId channelName handleName profilePicture bannerImage description links stats");
+async function getProfileOfChannel_service(channelId: string) {
+  const channel = await Channel.findById(channelId).select(
+    "userId channelName handleName profilePicture bannerImage description links stats",
+  );
 
   if (!channel) {
     throw new ApiError(404, "Channel not found");
@@ -157,11 +165,28 @@ async function getVideosOfChannel_service({
   return videos;
 }
 
+async function getPlaylistsOfChannel_service({
+  channelId,
+  page,
+  limit,
+}: IGetVideosOfChannel) {
+  const playlists = await Playlist.find({ channel_id: channelId })
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit);
+
+  if (playlists.length === 0) {
+    throw new ApiError(404, "No playlists found for this channel");
+  }
+
+  return playlists;
+}
+
 async function addSectionToFeaturedTab_service({
   channelId,
+  pinned,
   sectionKind,
   title,
-  layout,
   contentReferences,
   contentType,
 }: IAddSectionToFeaturedTab) {
@@ -182,9 +207,9 @@ async function addSectionToFeaturedTab_service({
       $push: {
         homeSections: {
           sectionId,
+          pinned,
           sectionKind,
           title,
-          layout,
           contentReferences,
           contentType,
         },
@@ -195,6 +220,84 @@ async function addSectionToFeaturedTab_service({
 
   if (!section) {
     throw new ApiError(500, "got error while adding section to featured tab");
+  }
+
+  return section;
+}
+
+async function addContentToSection_service({
+  channelId,
+  sectionId,
+  contentReferences,
+  contentType,
+}: IContentToSection) {
+  const contentReferencesArr = [contentReferences];
+
+  await validateContentRefrenceType({
+    channelId,
+    contentReferences: contentReferencesArr,
+    contentType,
+  });
+
+  const section = await Channel.findOneAndUpdate(
+    {
+      _id: channelId,
+      "homeSections.sectionId": sectionId,
+    },
+    {
+      // Using $addToSet to prevent duplicate entries in contentReferences
+      $addToSet: {
+        // we using $ to reach the saved section in homeSections array and add contentReferences to it
+        "homeSections.$.contentReferences": {
+          // adding each content refrence one by one $each prevent adding whole array as a single element in contentReferences array
+          $each: contentReferences,
+        },
+      },
+    },
+    { new: true },
+  );
+
+  if (!section) {
+    throw new ApiError(500, "got error while adding content to section");
+  }
+
+  return section;
+}
+
+async function removeContentOfSection_service({
+  channelId,
+  sectionId,
+  contentReferences,
+  contentType,
+}: IContentToSection) {
+  const contentReferencesArr = [contentReferences];
+
+  await validateContentRefrenceType({
+    channelId,
+    contentReferences: contentReferencesArr,
+    contentType,
+  });
+
+  const section = await Channel.findOneAndUpdate(
+    {
+      _id: channelId,
+      "homeSections.sectionId": sectionId,
+    },
+    {
+      // Using $pull to remove contentReferences from the section
+      $pull: {
+        // we using $ to reach the saved section in homeSections array and remove contentReferences from it
+        "homeSections.$.contentReferences": {
+          // removing each content refrence one by one $in operator is used to remove all the contentReferences that match any value in the contentReferences array
+          $in: contentReferences,
+        },
+      },
+    },
+    { new: true },
+  );
+
+  if (!section) {
+    throw new ApiError(500, "got error while removing content from section");
   }
 
   return section;
@@ -228,8 +331,11 @@ async function getHomeOfChannel_service(channelId: string) {
 export {
   createChannelProfile_service,
   updateChannelProfile_service,
-  getProfileOfChannelById_service,
+  getProfileOfChannel_service,
   getVideosOfChannel_service,
   addSectionToFeaturedTab_service,
-  getHomeOfChannel_service
+  getHomeOfChannel_service,
+  getPlaylistsOfChannel_service,
+  addContentToSection_service,
+  removeContentOfSection_service
 };

@@ -2,9 +2,9 @@ import mongoose, { Schema, Types } from "mongoose";
 
 interface IHomeSection {
   sectionId: string; // Unique identifier for the section
+  pinned: boolean; // Indicates if the section is pinned to the top
   sectionKind: "single" | "multiple";
   title?: string;
-  layout: "horizontal" | "vertical";
   contentReferences: Types.ObjectId[];
   contentType: "Video" | "Post" | "Playlist" | "Shorts";
 }
@@ -43,12 +43,9 @@ const homeSectionSchema = new Schema<IHomeSection>(
       required: true,
     },
 
+    pinned: { type: Boolean, default: false },
+
     title: { type: String, default: null },
-    layout: {
-      type: String,
-      enum: ["horizontal", "vertical"],
-      default: "horizontal",
-    },
     // This array holds the IDs
     contentReferences: {
       type: [
