@@ -313,6 +313,31 @@ async function getHomeOfChannel_service(channelId: string) {
   return homeSection;
 }
 
+async function updateSectionTitle_service(
+  channelId: string,
+  sectionId: string,
+  title: string,
+) {
+  const section = await Channel.findOneAndUpdate(
+    {
+      _id: channelId,
+      "homeSections.sectionId": sectionId,
+    },
+    {
+      $set: {
+        "homeSections.$.title": title,
+      },
+    },
+    { new: true },
+  );
+
+  if (!section) {
+    throw new ApiError(404, "got error while updating section title");
+  }
+
+  return section;
+}
+
 // async function deleteChannel_service(channelId: string) {
 //   // Implementation for deleting a channel
 //   if (!channelId) {
@@ -333,9 +358,10 @@ export {
   updateChannelProfile_service,
   getProfileOfChannel_service,
   getVideosOfChannel_service,
-  addSectionToFeaturedTab_service,
-  getHomeOfChannel_service,
   getPlaylistsOfChannel_service,
+  getHomeOfChannel_service,
+  addSectionToFeaturedTab_service,
   addContentToSection_service,
-  removeContentOfSection_service
+  removeContentOfSection_service,
+  updateSectionTitle_service
 };

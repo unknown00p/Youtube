@@ -21,3 +21,13 @@ export const addSectionToFeaturedTab_z_data = z.object({
   contentReferences: z.array(z.string()).min(1, "At least one content reference is required"),
   contentType: z.enum(["Video", "Post", "Playlist", "Shorts"]),
 })
+
+export const FeaturedTabSection_z_data = z.object({
+  sectionKind: z.enum(["single", "multiple"]),
+  contentReferences: z.string(),
+  contentType: z.enum(["Video", "Post", "Playlist", "Shorts"]),
+})
+
+export const updateSectionTitle_z_data = z.object({
+  title: z.string().max(50, "Title cannot exceed 50 characters"),
+})

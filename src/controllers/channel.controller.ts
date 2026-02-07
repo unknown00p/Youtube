@@ -4,6 +4,8 @@ import {
   channelCreate_z_data,
   channelUpdate_z_data,
   addSectionToFeaturedTab_z_data,
+  FeaturedTabSection_z_data,
+  updateSectionTitle_z_data,
 } from "../zod/channel.z";
 import {
   addSectionToFeaturedTab_service,
@@ -12,7 +14,10 @@ import {
   getVideosOfChannel_service,
   updateChannelProfile_service,
   getHomeOfChannel_service,
-  getPlaylistsOfChannel_service
+  getPlaylistsOfChannel_service,
+  addContentToSection_service,
+  removeContentOfSection_service,
+  updateSectionTitle_service
 } from "../services/channel.service";
 import { ApiResponse } from "../utils/responseHandler";
 import { ApiError } from "../utils/errorHandler";
@@ -169,12 +174,79 @@ const getHomeOfChannel_Controller = asyncHandler(
   },
 );
 
+const addContentToSection_Controller = asyncHandler(
+  async (req: Request, res: Response) => {
+    const channelId = req.params.channelId;
+    const sectionId = req.params.sectionId;
+    const { contentReferences, contentType } = FeaturedTabSection_z_data.parse(req.body);
+
+    if (!channelId || !sectionId) {
+      throw new ApiError(400, "Channel ID and Section ID are required");
+    }
+
+    const updatedChannel = await addContentToSection_service({
+      channelId,
+      sectionId,
+      contentReferences,
+      contentType,
+    });
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, "Content added to section successfully", updatedChannel));
+  },
+);
+
+const removeContentOfSection_Controller = asyncHandler(
+  async (req: Request, res: Response) => {
+    const channelId = req.params.channelId;
+    const sectionId = req.params.sectionId;
+    const { contentReferences, contentType } = FeaturedTabSection_z_data.parse(req.body);
+
+    if (!channelId || !sectionId) {
+      throw new ApiError(400, "Channel ID and Section ID are required");
+    }
+
+    const updatedChannel = await removeContentOfSection_service({
+      channelId,
+      sectionId,
+      contentReferences,
+      contentType,
+    });
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, "Content removed from section successfully", updatedChannel));
+  },
+);
+
+const updateSectionTitle_Controller = asyncHandler(
+  async (req: Request, res: Response) => {
+    const channelId = req.params.channelId;
+    const sectionId = req.params.sectionId;
+    const { title } = updateSectionTitle_z_data.parse(req.body);
+
+    if (!channelId || !sectionId) {
+      throw new ApiError(400, "Channel ID and Section ID are required");
+    }
+
+    const updatedChannel = await updateSectionTitle_service(channelId, sectionId, title);
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, "Section title updated successfully", updatedChannel));
+  },
+);
+
 export {
   createChannelProfile_Controller,
   updateChannelProfile_Controller,
   getProfileOfChannel_Controller,
-  getVideosOfChannel_Controller,
   addSectionToFeaturedTab_Controller,
   getHomeOfChannel_Controller,
-  getPlaylistsOfChannel_Controller
+  getVideosOfChannel_Controller,
+  getPlaylistsOfChannel_Controller,
+  addContentToSection_Controller,
+  removeContentOfSection_Controller,
+  updateSectionTitle_Controller
 };
