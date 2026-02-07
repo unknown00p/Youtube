@@ -1,5 +1,5 @@
 import express, { type Request, type Response } from "express";
-import { getCurrentUser_controller, getUserById_controller, signIn_controller, signOut_controller, signUp_controller } from "../controllers/auth_controlller";
+import { getCurrentUser_controller, getUserById_controller, signIn_controller, signOut_controller, signUp_controller } from "../controllers/auth.controlller";
 
 // created router with express
 const auth_router = express.Router();
