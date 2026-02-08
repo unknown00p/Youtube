@@ -6,6 +6,7 @@ import {
   createComment_service,
   deleteComment_service,
   editComment_service,
+  getAllCommentsOfaVideo_service,
 } from "../services/comment.service";
 import { comment_z_data } from "../zod/comment.z";
 

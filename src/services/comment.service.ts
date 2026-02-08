@@ -14,12 +14,17 @@ interface IUpdateComment {
   userId: string;
 }
 
+interface IGetCommentsOfVideo {
+  videoId: string;
+  page: number;
+  limit: number;
+}
+
 async function createComment_service({
   content,
   videoId,
   userId,
 }: ICreateComment) {
-
   const video = await Video.findById(videoId);
 
   if (!video) {
@@ -73,4 +78,33 @@ async function deleteComment_service({
   return;
 }
 
-export { createComment_service, editComment_service, deleteComment_service };
+async function getAllCommentsOfaVideo_service({
+  videoId,
+  page,
+  limit,
+}: IGetCommentsOfVideo) {
+  const video = await Video.findById(videoId).select("isCommentEnabled");
+
+  if (!video) {
+    throw new ApiError(404, "Video does not exist");
+  }
+
+  if (video.isCommentEnabled == false) {
+    throw new ApiError(403, "Comments are disabled for this video");
+  }
+
+  const skip = (page - 1) * limit;
+  const comments = await Comment.find({ videoId })
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  return comments;
+}
+
+export {
+  createComment_service,
+  editComment_service,
+  deleteComment_service,
+  getAllCommentsOfaVideo_service,
+};

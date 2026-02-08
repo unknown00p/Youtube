@@ -181,10 +181,6 @@ async function getVideosOfChannel_service({
     .skip((page - 1) * limit)
     .limit(limit);
 
-  if (videos.length === 0) {
-    throw new ApiError(404, "No videos found for this channel");
-  }
-
   return videos;
 }
 
@@ -197,10 +193,6 @@ async function getPlaylistsOfChannel_service({
     .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
     .limit(limit);
-
-  if (playlists.length === 0) {
-    throw new ApiError(404, "No playlists found for this channel");
-  }
 
   return playlists;
 }
