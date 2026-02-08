@@ -3,6 +3,7 @@ import mongoose, { Schema, Types } from "mongoose";
 interface IVideo {
   title: string;
   description: string;
+  isCommentEnabled: boolean;
   channel_id: Types.ObjectId;
   video_url: string;
   s3FileKey: string;
@@ -56,7 +57,7 @@ const videoSchema = new Schema<IVideo>(
       default: "processing",
     }, // 'processing', 'published', 'failed'
 
-    
+    isCommentEnabled: { type: Boolean, default: true },
 
     // Engagement metrics (denormalized for performance)
     view_count: { type: Number, default: 0 },

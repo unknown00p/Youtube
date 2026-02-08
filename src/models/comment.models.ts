@@ -1,11 +1,11 @@
 import mongoose, { Schema, type HydratedDocument } from "mongoose";
 
 interface IComment {
-  video_id: mongoose.Types.ObjectId;
-  user_id: mongoose.Types.ObjectId;
-  text: string;
+  videoId: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
+  content: string;
   likes: number | null;
-  is_edited: boolean;
+  isEdited: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -14,19 +14,19 @@ export type CommentDocument = HydratedDocument<IComment>;
 
 const commentSchema = new Schema<IComment>(
   {
-    video_id: {
+    videoId: {
       type: Schema.Types.ObjectId,
       ref: "Video",
     }, // indexed
-    user_id: {
+    userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
     },
-    text: { type: String, required: true },
+    content: { type: String, required: true },
     likes: { type: Number, default: null },
 
     // Metadata
-    is_edited: { type: Boolean, default: false },
+    isEdited: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
