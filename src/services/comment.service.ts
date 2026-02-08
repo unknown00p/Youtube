@@ -5,13 +5,13 @@ import { ApiError } from "../utils/errorHandler";
 interface ICreateComment {
   content: string;
   videoId: string;
-  userId: string;
+  channelId: string;
 }
 
 interface IUpdateComment {
   content: string;
   commentId: string;
-  userId: string;
+  channelId: string;
 }
 
 interface IGetCommentsOfVideo {
@@ -23,7 +23,7 @@ interface IGetCommentsOfVideo {
 async function createComment_service({
   content,
   videoId,
-  userId,
+  channelId,
 }: ICreateComment) {
   const video = await Video.findById(videoId);
 
@@ -38,7 +38,7 @@ async function createComment_service({
   const comment = await Comment.create({
     content,
     videoId,
-    userId,
+    channelId,
   });
 
   return comment;
@@ -47,10 +47,10 @@ async function createComment_service({
 async function editComment_service({
   content,
   commentId,
-  userId,
+  channelId,
 }: IUpdateComment) {
   const comment = await Comment.findOneAndUpdate(
-    { _id: commentId, userId },
+    { _id: commentId, channelId },
     { content },
     { new: true },
   );
@@ -64,12 +64,12 @@ async function editComment_service({
 
 async function deleteComment_service({
   commentId,
-  userId,
+  channelId,
 }: {
   commentId: string;
-  userId: string;
+  channelId: string;
 }) {
-  const comment = await Comment.findOneAndDelete({ _id: commentId, userId });
+  const comment = await Comment.findOneAndDelete({ _id: commentId, channelId });
 
   if (!comment) {
     throw new ApiError(404, "Comment not found");

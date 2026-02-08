@@ -2,7 +2,7 @@ import mongoose, { Schema, type HydratedDocument } from "mongoose";
 
 interface IComment {
   videoId: mongoose.Types.ObjectId;
-  userId: mongoose.Types.ObjectId;
+  channelId: mongoose.Types.ObjectId;
   content: string;
   likes: number | null;
   isEdited: boolean;
@@ -18,9 +18,9 @@ const commentSchema = new Schema<IComment>(
       type: Schema.Types.ObjectId,
       ref: "Video",
     }, // indexed
-    userId: {
+    channelId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Channel",
     },
     content: { type: String, required: true },
     likes: { type: Number, default: null },
@@ -33,6 +33,6 @@ const commentSchema = new Schema<IComment>(
 
 // Define indexes
 // Indexes: {video_id: 1, created_at: -1}
-commentSchema.index({ video_id: 1, createdAt: -1 });
+commentSchema.index({ videoId: 1, channelId: 1, createdAt: -1 });
 
 export const Comment = mongoose.model<IComment>("Comment", commentSchema);

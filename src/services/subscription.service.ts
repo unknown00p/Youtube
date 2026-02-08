@@ -8,7 +8,7 @@ interface ISubscriptionData {
 }
 
 interface IGetSubscribedChannelsOfUser {
-  userId: string;
+  channelId: string;
   page: number;
   limit: number;
 }
@@ -18,8 +18,8 @@ async function subscribeToChannel_service({
   channelId,
 }: ISubscriptionData) {
   const subscription = await Subscription.create({
-    subscriberId,
-    channelId,
+    subscriberChannelId: subscriberId,
+    targetChannelId: channelId,
   });
 
   if (!subscription) {
@@ -38,27 +38,27 @@ async function unSubscribeToChannel_service({
   }
 
   const unsubscribe = await Subscription.findOneAndDelete({
-    subscriberId,
-    channelId,
+    subscriberChannelId: subscriberId,
+    targetChannelId: channelId,
   });
 
   return unsubscribe;
 }
 
 async function getSubscribedChannelsOfUser_service({
-  userId,
+  channelId,
   page,
   limit,
 }: IGetSubscribedChannelsOfUser) {
-  if (!userId) {
-    throw new ApiError(400, "userId is required");
+  if (!channelId) {
+    throw new ApiError(400, "channelId is required");
   }
   const skip = (page - 1) * limit;
 
   // aggregation for multistep query wich helps working with foreign schema
   const subscribedChannels = await Subscription.aggregate([
     // finding all the channels that user have subscribed
-    { $match: { subscriberId: userId } },
+    { $match: { subscriberChannelId: channelId } },
 
     // getting the all the channel's detail
     {
@@ -72,13 +72,12 @@ async function getSubscribedChannelsOfUser_service({
             $match: {
               //allows you to use aggregation expressions within a query stage.
               $expr: {
-
                 // allow multiple conditional oprations and retruns true if all the conditions are true
                 $and: [
                   // match the channelId from subscription with _id of channel collection
-                  { 
+                  {
                     // method to compare two feilds
-                    $eq: ["$_id", "$$channelIdVar"] 
+                    $eq: ["$_id", "$$channelIdVar"],
                   },
 
                   // excluding suspended channels

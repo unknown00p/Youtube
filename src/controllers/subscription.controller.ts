@@ -16,8 +16,8 @@ const pageAndLimit = z.object({
 
 const subscribeTochannel_controller = asyncHandler(
   async (req: Request, res: Response) => {
-    const subscriberId = req.user?._id;
-    const { channelId } = req.params;
+    const subscriberId = req.params.subscriberId;
+    const channelId = req.params.channelId;
 
     if (!subscriberId || !channelId) {
       throw new ApiError(401, "Both subscriberId and channelId are required");
@@ -42,8 +42,8 @@ const subscribeTochannel_controller = asyncHandler(
 
 const unSubscribeTochannel_controller = asyncHandler(
   async (req: Request, res: Response) => {
-    const subscriberId = req.user?._id;
-    const { channelId } = req.params;
+    const subscriberId = req.params.subscriberId;
+    const channelId = req.params.channelId;
 
     if (!subscriberId || !channelId) {
       throw new ApiError(401, "Both subscriberId and channelId are required");
@@ -66,20 +66,20 @@ const unSubscribeTochannel_controller = asyncHandler(
   },
 );
 
-const getSubscribedChannelsOfUser_controller = asyncHandler(
+const getSubscribedChannelsOfUserChannel_controller = asyncHandler(
   async (req: Request, res: Response) => {
-    const userId = req.user?._id;
+    const channelId = req.params.channelId;
     // const page = parseInt(req.query.page as string) || 1;
     // const limit = parseInt(req.query.limit as string) || 10;
 
     const { page, limit } = pageAndLimit.parse(req.query);
 
-    if (!userId) {
-      throw new ApiError(401, "userId is required");
+    if (!channelId) {
+      throw new ApiError(401, "channelId is required");
     }
 
     const subscriptions = await getSubscribedChannelsOfUser_service({
-      userId,
+      channelId,
       page,
       limit,
     });
@@ -99,5 +99,5 @@ const getSubscribedChannelsOfUser_controller = asyncHandler(
 export {
   subscribeTochannel_controller,
   unSubscribeTochannel_controller,
-  getSubscribedChannelsOfUser_controller,
+  getSubscribedChannelsOfUserChannel_controller,
 };

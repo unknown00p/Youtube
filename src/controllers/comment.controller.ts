@@ -14,15 +14,15 @@ const createComment_Controller = asyncHandler(
   async (req: Request, res: Response) => {
     const { content } = comment_z_data.parse(req.body);
     const videoId = req.params.videoId;
-    const userId = req.user?._id;
+    const channelId = req.params?.channelId;
 
-    if (!userId) throw new ApiError(401, "Unauthorized");
+    if (!channelId) throw new ApiError(401, "Unauthorized");
     if (!videoId) throw new ApiError(400, "Video ID is required");
 
     const comment = await createComment_service({
       content,
       videoId,
-      userId,
+      channelId,
     });
 
     res
@@ -35,15 +35,15 @@ const editComment_Controller = asyncHandler(
   async (req: Request, res: Response) => {
     const { content } = comment_z_data.parse(req.body);
     const commentId = req.params.id;
-    const userId = req.user?._id;
+    const channelId = req.params?.channelId;
 
-    if (!userId) throw new ApiError(401, "Unauthorized");
+    if (!channelId) throw new ApiError(401, "Unauthorized");
     if (!commentId) throw new ApiError(400, "Comment ID is required");
 
     const comment = await editComment_service({
       content,
       commentId,
-      userId,
+      channelId,
     });
 
     res
@@ -55,14 +55,14 @@ const editComment_Controller = asyncHandler(
 const deleteComment_Controller = asyncHandler(
   async (req: Request, res: Response) => {
     const commentId = req.params.id;
-    const userId = req.user?._id;
-    if (!userId || !commentId) {
-      throw new ApiError(400, "User ID and Comment ID are required");
+    const channelId = req.params.channelId;
+    if (!channelId || !commentId) {
+      throw new ApiError(400, "channelId ID and Comment ID are required");
     }
 
     await deleteComment_service({
       commentId,
-      userId,
+      channelId,
     });
 
     res

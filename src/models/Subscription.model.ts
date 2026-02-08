@@ -2,8 +2,8 @@ import mongoose, { Schema, Types } from "mongoose";
 import { ApiError } from "../utils/errorHandler";
 
 interface ISubscription {
-  subscriberId: Types.ObjectId;
-  channelId: Types.ObjectId;
+  subscriberChannelId: Types.ObjectId;
+  targetChannelId: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -12,14 +12,14 @@ export type SubscriptionDocument = mongoose.HydratedDocument<ISubscription>;
 
 const subscriptionSchema = new Schema<ISubscription>(
   {
-    subscriberId: {
+    subscriberChannelId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Channel",
       required: true,
     }, // user who is subscribing
-    channelId: {
+    targetChannelId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Channel",
       required: true,
     }, // user being subscribed to
   },
@@ -28,7 +28,7 @@ const subscriptionSchema = new Schema<ISubscription>(
 
 // Pre-save hook to prevent self-subscription
 subscriptionSchema.pre("validate", function (){
-  if (this.subscriberId.equals(this.channelId)){
+  if (this.subscriberChannelId.equals(this.targetChannelId)){
     throw new ApiError(400,"User cannot subscribe to themselves");
   }
 })
