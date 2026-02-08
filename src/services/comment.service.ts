@@ -57,4 +57,20 @@ async function editComment_service({
   return comment;
 }
 
-export { createComment_service, editComment_service };
+async function deleteComment_service({
+  commentId,
+  userId,
+}: {
+  commentId: string;
+  userId: string;
+}) {
+  const comment = await Comment.findOneAndDelete({ _id: commentId, userId });
+
+  if (!comment) {
+    throw new ApiError(404, "Comment not found");
+  }
+
+  return;
+}
+
+export { createComment_service, editComment_service, deleteComment_service };

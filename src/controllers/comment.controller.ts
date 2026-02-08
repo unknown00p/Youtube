@@ -4,6 +4,7 @@ import { ApiError } from "../utils/errorHandler";
 import { asyncHandler } from "../utils/asyncFunctionWarper";
 import {
   createComment_service,
+  deleteComment_service,
   editComment_service,
 } from "../services/comment.service";
 import { comment_z_data } from "../zod/comment.z";
