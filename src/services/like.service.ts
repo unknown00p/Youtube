@@ -1,9 +1,10 @@
 import { Like } from "../models/like.models";
 import { Video } from "../models/video.models";
 import { ApiError } from "../utils/errorHandler";
+import { likeCountUpdateQueue } from "../infrastructure/queue";
 
-async function likeVideo_service(channelId: string, videoId: string) {
-  const video = await Video.findById(videoId);
+async function likeAndUnlikeVideo_service(channelId: string, videoId: string) {
+  const video = await Video.findById(videoId).select("visibility like_count");
 
   if (!video) {
     throw new ApiError(404, "Video id is incorrect");
@@ -13,16 +14,28 @@ async function likeVideo_service(channelId: string, videoId: string) {
     throw new ApiError(403, "this opration is not allowed in this video");
   }
 
-  const like = await Like.create({
-    channelId,
-    videoId,
-  });
+  const likeResult = await Like.updateOne(
+    { videoId, channelId },
 
-  if (!like) {
-    throw new ApiError(500, "Failed to like the video");
+    // create the document if its not exists in DB, if its exists then do nothing
+    { $setOnInsert: { videoId, channelId } },
+    { upsert: true },
+  );
+
+  if (likeResult.upsertedId) {
+    likeCountUpdateQueue.add("increaseCount", {videoId});
+    return {
+      message: "video liked successfully",
+    };
   }
 
-  return true;
+  const dislikeResult = await Like.deleteOne({ channelId, videoId });
+  if (dislikeResult.deletedCount > 0) {
+    likeCountUpdateQueue.add("decreaseCount", {videoId});
+    return {
+      message: "video unliked successfully",
+    };
+  }
 }
 
-export { likeVideo_service };
+export { likeAndUnlikeVideo_service };

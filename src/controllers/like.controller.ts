@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncFunctionWarper";
-import { likeVideo_service } from "../services/like.service";
+import { likeAndUnlikeVideo_service } from "../services/like.service";
 
 const likeVideo_controller = asyncHandler(
   async (req: Request, res: Response) => {
@@ -14,7 +14,7 @@ const likeVideo_controller = asyncHandler(
       return res.status(400).json({ message: "videoId are required" });
     }
 
-    const like = await likeVideo_service(channelId, videoId);
+    const like = await likeAndUnlikeVideo_service(channelId, videoId);
 
     return res
       .status(200)
