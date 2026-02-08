@@ -8,6 +8,12 @@ interface ICreateComment {
   userId: string;
 }
 
+interface IUpdateComment {
+  content: string;
+  commentId: string;
+  userId: string;
+}
+
 async function createComment_service({
   content,
   videoId,
@@ -33,4 +39,22 @@ async function createComment_service({
   return comment;
 }
 
-export { createComment_service };
+async function editComment_service({
+  content,
+  commentId,
+  userId,
+}: IUpdateComment) {
+  const comment = await Comment.findOneAndUpdate(
+    { _id: commentId, userId },
+    { content },
+    { new: true },
+  );
+
+  if (!comment) {
+    throw new ApiError(404, "Comment not found");
+  }
+
+  return comment;
+}
+
+export { createComment_service, editComment_service };
