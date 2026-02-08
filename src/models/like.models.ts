@@ -5,7 +5,6 @@ export type ReactionType = "like" | "dislike";
 export interface ILike {
   videoId: Types.ObjectId;
   channelId: Types.ObjectId;
-  type: ReactionType;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,12 +20,7 @@ const likeSchema = new Schema<ILike>(
     channelId: {
       type: Schema.Types.ObjectId,
       ref: "Channel",
-    },
-    type: {
-      type: String,
-      enum: ["like", "dislike"],
-    }, // 'like' or 'dislike'
-
+    }
     // Unique compound index to prevent duplicate reactions
     // Indexes: {video_id: 1, user_id: 1}, unique: true
   },
