@@ -28,6 +28,6 @@ const likeSchema = new Schema<ILike>(
 );
 
 // Define indexes
-likeSchema.index({ videoId: 1, createdAt: -1 });
+likeSchema.index({ videoId: 1, channelId: 1, createdAt: -1 });
 
 export const Like = mongoose.model<ILike>("Like", likeSchema);
