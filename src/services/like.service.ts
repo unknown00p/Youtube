@@ -3,7 +3,7 @@ import { Video } from "../models/video.models";
 import { ApiError } from "../utils/errorHandler";
 import { likeCountUpdateQueue } from "../infrastructure/queue";
 
-async function likeAndUnlikeVideo_service(channelId: string, videoId: string) {
+async function likeVideo_service(channelId: string, videoId: string) {
   const video = await Video.findById(videoId).select("visibility like_count");
 
   if (!video) {
@@ -23,7 +23,7 @@ async function likeAndUnlikeVideo_service(channelId: string, videoId: string) {
   );
 
   if (likeResult.upsertedId) {
-    likeCountUpdateQueue.add("increaseCount", {videoId});
+    likeCountUpdateQueue.add("increaseCount", { videoId });
     return {
       message: "video liked successfully",
     };
@@ -31,11 +31,33 @@ async function likeAndUnlikeVideo_service(channelId: string, videoId: string) {
 
   const dislikeResult = await Like.deleteOne({ channelId, videoId });
   if (dislikeResult.deletedCount > 0) {
-    likeCountUpdateQueue.add("decreaseCount", {videoId});
+    likeCountUpdateQueue.add("decreaseCount", { videoId });
     return {
       message: "video unliked successfully",
     };
   }
 }
 
-export { likeAndUnlikeVideo_service };
+async function unlikeVideo_service(channelId: string, videoId: string) {
+  const video = await Video.findById(videoId).select("visibility like_count");
+
+  if (!video) {
+    throw new ApiError(404, "Video id is incorrect");
+  }
+
+  if (video.visibility !== "public") {
+    throw new ApiError(403, "this opration is not allowed in this video");
+  }
+
+  const dislikeResult = await Like.deleteOne({ channelId, videoId });
+  if (dislikeResult.deletedCount > 0) {
+    likeCountUpdateQueue.add("decreaseCount", { videoId });
+    return {
+      message: "video unliked successfully",
+    };
+  }
+}
+
+
+
+export { likeVideo_service, unlikeVideo_service };
