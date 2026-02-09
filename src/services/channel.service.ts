@@ -3,7 +3,7 @@ import { Channel } from "../models/channel.models";
 import { ApiError } from "../utils/errorHandler";
 import { Video } from "../models/video.models";
 import { v4 as uuid } from "uuid";
-import { Playlist } from "../models/Playlist.model";
+import { Playlist } from "../models/playlist.model";
 
 interface ICreateChannel {
   userId: string;

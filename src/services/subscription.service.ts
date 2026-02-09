@@ -1,4 +1,4 @@
-import { Subscription } from "../models/Subscription.model";
+import { Subscription } from "../models/subscription.model";
 import { ApiError } from "../utils/errorHandler";
 import mongoose from "mongoose";
 

@@ -30,7 +30,4 @@ const watchHistorySchema = new Schema<IWatchHistory>(
 // Indexes: {user_id: 1, watched_at: -1}
 watchHistorySchema.index({ user_id: 1 });
 
-// TTL: {watched_at: 1}, expireAfterSeconds: 7776000 (90 days)
-watchHistorySchema.index({ createdAt: -1 }, { expireAfterSeconds: 7776000 });
-
 export const WatchHistory = mongoose.model<IWatchHistory>("WatchHistory", watchHistorySchema);
