@@ -3,14 +3,14 @@ import mongoose, { Schema, Types } from "mongoose";
 export type PlaylistVisibility = "public" | "private";
 
 export interface IPlaylistVideo {
-  video_id: Types.ObjectId;
-  added_at: Date | null;
+  videoId: Types.ObjectId;
+  addedAt: Date | null;
   position: number;
 }
 
 export interface IPlaylist {
   name: string;
-  owner_id: Types.ObjectId;
+  ownerId: Types.ObjectId;
   visibility: PlaylistVisibility;
   videos: IPlaylistVideo[];
   video_count: number;
@@ -23,32 +23,40 @@ export type PlaylistDocument = mongoose.HydratedDocument<IPlaylist>;
 const PlaylistSchema = new Schema<IPlaylist>(
   {
     name: { type: String, required: true },
-    owner_id: {
+    ownerId: {
       type: Schema.Types.ObjectId,
       ref: "Channel",
     }, // indexed
-    visibility: { type: String, enum: ["public", "private"] },
+    visibility: {
+      type: String,
+      enum: ["public", "private"],
+      default: "private",
+    },
 
     // Video references with ordering
-    videos: [
-      {
-        video_id: {
-          type: Schema.Types.ObjectId,
-          ref: "Video",
+    videos: {
+      type: [
+        {
+          videoId: {
+            type: Schema.Types.ObjectId,
+            ref: "Video",
+          },
+          addedAt: { type: Date, default: null },
+          position: { type: Number, required: true },
         },
-        added_at: { type: Date, default: null },
-        position: { type: Number, required: true },
-      },
-    ],
+      ],
+
+      default: []
+    },
 
     video_count: { type: Number, default: 0 }, // denormalized count
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Define indexes
 // Indexes: {owner_id: 1}, {videos.video_id: 1}
-PlaylistSchema.index({ owner_id: 1 });
-PlaylistSchema.index({ "videos.video_id": 1 });
+PlaylistSchema.index({ ownerId: 1 });
+PlaylistSchema.index({ "videos.videoId": 1 });
 
 export const Playlist = mongoose.model<IPlaylist>("Playlist", PlaylistSchema);

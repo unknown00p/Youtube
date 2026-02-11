@@ -17,7 +17,7 @@ export const channelAuthentication = asyncHandler(
         throw new ApiError(400, "user id is required")
     }
 
-    const channel = await Channel.findById(channelId).select("ownerId");
+    const channel = await Channel.findById(channelId).select("ownerId state");
 
     if (!channel) {
         throw new ApiError(404,"channel does not exits")
