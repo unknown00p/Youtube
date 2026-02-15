@@ -14,6 +14,7 @@ interface ICreatePlaylist {
 }
 interface IEditPlaylist {
   name?: string;
+  playlistId: string;
   description?: string;
   visibility?: "public" | "private";
 }
@@ -62,8 +63,25 @@ async function editPlaylist_service({
   name,
   description,
   visibility,
+  playlistId,
 }:IEditPlaylist) {
-  
+  const playlist = await Playlist.findByIdAndUpdate(
+    {_id: playlistId},
+    {
+      $set: {
+        name: name,
+        description: description,
+        visibility: visibility,
+      },
+    },
+    { new: true },
+  )
+
+  if (!playlist) {
+    throw new ApiError(404, "Playlist not found");
+  }
+
+  return playlist;
 }
 
-export { createPlaylist_service };
+export { createPlaylist_service, editPlaylist_service };

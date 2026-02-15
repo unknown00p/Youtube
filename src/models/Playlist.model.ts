@@ -11,7 +11,6 @@ export interface IPlaylistVideo {
 export interface IPlaylist {
   name: string;
   description: string;
-  avatarUrl: string;
   ownerId: Types.ObjectId;
   visibility: PlaylistVisibility;
   videos: IPlaylistVideo[];
@@ -26,7 +25,6 @@ const PlaylistSchema = new Schema<IPlaylist>(
   {
     name: { type: String, required: true },
     description: { type: String, default: "" },
-    avatarUrl: { type: String, required: true },
     ownerId: {
       type: Schema.Types.ObjectId,
       ref: "Channel",

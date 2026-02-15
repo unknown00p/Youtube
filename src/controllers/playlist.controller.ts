@@ -1,9 +1,10 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncFunctionWarper";
-import { createPlaylist_service } from "../services/playlist.service";
+import { createPlaylist_service, editPlaylist_service } from "../services/playlist.service";
 import { ApiError } from "../utils/errorHandler";
-import { playlist_z_data } from "../zod/playlist.z";
+import { playlist_z_data, edit_playlist_z_data } from '../zod/playlist.z';
 import mongoose from "mongoose";
+import { ApiResponse } from "../utils/responseHandler";
 const createPlaylist = asyncHandler(async (req: Request, res: Response) => {
   const ownerId = req.params.channelId;
   const videoId = req.params.videoId;
@@ -28,4 +29,32 @@ const createPlaylist = asyncHandler(async (req: Request, res: Response) => {
     addedAt: new Date().toISOString(),
     position,
   });
+
+  res
+    .status(201)
+    .json(new ApiResponse(201, "Playlist created successfully", playlist
+    ));
 });
+
+const editPlaylist = asyncHandler(async (req: Request, res: Response) => {
+  const playlistId = req.params.playlistId;
+  const { name, description, visibility } = edit_playlist_z_data.parse(req.body);
+
+  if (!playlistId) {
+    throw new ApiError(400, "Playlist ID is required");
+  }
+
+  const playlist = await editPlaylist_service({
+    name,
+    description,
+    visibility,
+    playlistId: playlistId,
+  });
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, "Playlist updated successfully", playlist));
+});
+
+
+export { createPlaylist, editPlaylist };
