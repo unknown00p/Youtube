@@ -131,9 +131,20 @@ async function removeVideoFromPlaylist_service({playlistId, videoId}:{playlistId
   return playlist;
 }
 
+async function getPlaylistById_service(playlistId: string) {
+  const playlist = await Playlist.findById(playlistId);
+
+  if (!playlist) {
+    throw new ApiError(404, "Playlist not found");
+  }
+
+  return playlist;
+}
+
 export {
   createPlaylist_service,
   editPlaylist_service,
   addVideoToPlaylist_service,
   removeVideoFromPlaylist_service,
+  getPlaylistById_service
 };
