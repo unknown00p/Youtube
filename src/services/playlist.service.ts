@@ -2,6 +2,7 @@ import type mongoose from "mongoose";
 import { Playlist } from "../models/playlist.model";
 import { ApiError } from "../utils/errorHandler";
 import { Video } from "../models/video.models";
+import { Types } from "mongoose";
 
 interface ICreatePlaylist {
   ownerId: string;
@@ -12,6 +13,7 @@ interface ICreatePlaylist {
   addedAt: string;
   position: number;
 }
+
 interface IEditPlaylist {
   name?: string;
   playlistId: string;
@@ -27,7 +29,6 @@ async function createPlaylist_service({
   videoId,
   position,
 }: ICreatePlaylist) {
-
   const video = await Video.findById(videoId);
 
   if (!video) {
@@ -35,7 +36,10 @@ async function createPlaylist_service({
   }
 
   if (visibility == "public" && video.visibility !== "public") {
-    throw new ApiError(400, "Video must be public to be added to this playlist");
+    throw new ApiError(
+      400,
+      "Video must be public to be added to this playlist",
+    );
   }
 
   const playlist = await Playlist.create({
@@ -64,9 +68,9 @@ async function editPlaylist_service({
   description,
   visibility,
   playlistId,
-}:IEditPlaylist) {
+}: IEditPlaylist) {
   const playlist = await Playlist.findByIdAndUpdate(
-    {_id: playlistId},
+    { _id: playlistId },
     {
       $set: {
         name: name,
@@ -75,7 +79,7 @@ async function editPlaylist_service({
       },
     },
     { new: true },
-  )
+  );
 
   if (!playlist) {
     throw new ApiError(404, "Playlist not found");
@@ -84,4 +88,52 @@ async function editPlaylist_service({
   return playlist;
 }
 
-export { createPlaylist_service, editPlaylist_service };
+async function addVideoToPlaylist_service({
+  playlistId,
+  videoId,
+}: {
+  playlistId: string;
+  videoId: string;
+}) {
+  const playlist = await Playlist.findByIdAndUpdate(
+    playlistId,
+    {
+      $push: {
+        videos: {
+          videoId: new Types.ObjectId(videoId),
+          addedAt: new Date(),
+        },
+      },
+    },
+    { new: true },
+  );
+
+  if (!playlist) {
+    throw new ApiError(404, "Playlist not found");
+  }
+
+  return playlist;
+}
+
+async function removeVideoFromPlaylist_service({playlistId, videoId}:{playlistId: string, videoId:string}){
+  const playlist = await Playlist.findByIdAndUpdate(playlistId,{
+    $pull: {
+      videos: {
+        videoId: new Types.ObjectId(videoId),
+      },
+    },
+  },{new:true});
+
+  if (!playlist) {
+    throw new ApiError(404, "Playlist not found");
+  }
+  
+  return playlist;
+}
+
+export {
+  createPlaylist_service,
+  editPlaylist_service,
+  addVideoToPlaylist_service,
+  removeVideoFromPlaylist_service,
+};

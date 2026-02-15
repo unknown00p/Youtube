@@ -1,10 +1,11 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncFunctionWarper";
-import { createPlaylist_service, editPlaylist_service } from "../services/playlist.service";
+import { createPlaylist_service, editPlaylist_service, removeVideoFromPlaylist_service } from "../services/playlist.service";
 import { ApiError } from "../utils/errorHandler";
 import { playlist_z_data, edit_playlist_z_data } from '../zod/playlist.z';
 import mongoose from "mongoose";
 import { ApiResponse } from "../utils/responseHandler";
+
 const createPlaylist = asyncHandler(async (req: Request, res: Response) => {
   const ownerId = req.params.channelId;
   const videoId = req.params.videoId;
@@ -56,5 +57,27 @@ const editPlaylist = asyncHandler(async (req: Request, res: Response) => {
     .json(new ApiResponse(200, "Playlist updated successfully", playlist));
 });
 
+const removeVideoFromPlaylist = asyncHandler(async (req: Request, res: Response) => {
+  const playlistId = req.params.playlistId;
+  const videoId = req.params.videoId;
 
-export { createPlaylist, editPlaylist };
+  if (!playlistId) {
+    throw new ApiError(400, "Playlist ID is required");
+  }
+
+  if (!videoId) {
+    throw new ApiError(400, "Video ID is required");
+  }
+
+  const playlist = await removeVideoFromPlaylist_service({playlistId, videoId});
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, "Video removed from playlist successfully", playlist));
+});
+
+export {
+  createPlaylist,
+  editPlaylist,
+  removeVideoFromPlaylist
+};
