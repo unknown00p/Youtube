@@ -35,6 +35,8 @@ async function createComment_service({
     throw new ApiError(403, "Comments are disabled for this video");
   }
 
+  // increment comment count in video document
+
   const comment = await Comment.create({
     content,
     videoId,

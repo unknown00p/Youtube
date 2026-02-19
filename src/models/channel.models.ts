@@ -25,6 +25,10 @@ interface Ichannel {
   bannerImage: string;
   description: string;
   isChannelSetup: boolean;
+  watchHistory: {
+    videoId: Types.ObjectId;
+    watchedAt: Date;
+  }[];
   stats: {
     subscriberCount: number; // Changed to number for consistency
     videoCount: number;
@@ -109,6 +113,19 @@ const channelSchema = new Schema<Ichannel>(
 
       default: [],
       required: false,
+    },
+
+    watchHistory: {
+      type: [
+        {
+          videoId: {
+            type: Schema.Types.ObjectId,
+            ref: "Video",
+            required: true,
+          },
+          watchedAt: { type: Date, default: Date.now },
+        },
+      ],
     },
 
     isChannelSetup: { type: Boolean, default: false },
