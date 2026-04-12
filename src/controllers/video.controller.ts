@@ -14,7 +14,7 @@ type thumbnailFileType = {
 const uploadVideo = asyncHandler(async (req: Request, res: Response) => {
   // logic to upload a video
   const videoData = UploadVideo_z_data.parse(req.body);
-  const channelId = req.user?._id;
+  const channelId = req.params.channelId;
   const videoFile = req.files as videoFileType;
   const thumbnailFile = req.files as thumbnailFileType;
 

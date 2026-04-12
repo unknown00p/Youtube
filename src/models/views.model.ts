@@ -3,11 +3,11 @@ import mongoose, { Schema, Types } from "mongoose";
 interface IViews {
   video_id: Types.ObjectId;
   user_id: Types.ObjectId | null; // nullable for anonymous users
-  watch_time: number; // seconds watched
-  device_info: {
-    platform: string;
-    browser: string;
-  };
+  // watch_time: number; // seconds watched
+  // device_info: {
+  //   platform: string;
+  //   browser: string;
+  // };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -25,11 +25,11 @@ const viewsSchema = new Schema<IViews>(
       ref: "User",
       default: null,
     }, // nullable for anonymous users
-    watch_time: Number, // seconds watched
-    device_info: {
-      platform: String,
-      browser: String,
-    },
+    // watch_time: Number, // seconds watched
+    // device_info: {
+    //   platform: String,
+    //   browser: String,
+    // },
 },
 { timestamps: true }
 );
