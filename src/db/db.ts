@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { config } from "../config/config.ts";
 
+// console.log(config.DATABASE_URL)
 export async function connectDB() {
     try {
         // note: when we will connect to the databse a socket connection will be lazily created inside pool and if we get the sudden query req it will be delayed. thats why we defines minPoolSize so that we always have socket available right after connection

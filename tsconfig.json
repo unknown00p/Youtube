@@ -27,5 +27,5 @@
     "noPropertyAccessFromIndexSignature": false
   },
   
-  "include": ["src/**/*", "src/types/**/*"]
+  "include": ["src/**/*", "src/types/**/*", "test.js"]
 }

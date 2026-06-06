@@ -47,7 +47,6 @@ const userSchema = new Schema<IUser, {}, UserMethods>(
       type: String,
       required: true,
       unique: true,
-      index: true,
       lowercase: true,
     }, // indexed
     password: {
@@ -64,7 +63,6 @@ const userSchema = new Schema<IUser, {}, UserMethods>(
       type: String,
       required: true,
       unique: true,
-      index: true,
       trim: true,
     }, // indexed
 
@@ -129,8 +127,6 @@ userSchema.methods.generate_refreshToken = function () {
 };
 
 // Define indexes
-userSchema.index({ username: 1 }, { unique: true });
-userSchema.index({ email: 1 }, { unique: true });
 userSchema.index({ channelName: 1 });
 
 // task: how it works

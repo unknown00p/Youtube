@@ -387,6 +387,17 @@ async function deleteChannel_service(channelId: string, userId: string) {
   return channel;
 }
 
+// async function getWatchHistory(userId: string) {
+//   const watchHistory = await Views.find({ user_id: userId })
+//     .populate({
+//         path: "video_id",
+//         select: "title thumbnail_url duration channel_id"
+//     })
+//     .exec();
+
+
+// }
+
 export {
   createChannelProfile_service,
   updateChannelProfile_service,
