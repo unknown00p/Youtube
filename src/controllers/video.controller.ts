@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncFunctionWarper";
 import { UploadVideo_z_data } from "../zod/video.z";
-import { uploadVideo_service } from "../services/video.service";
+// import { uploadVideo_service } from "../services/video.service";
 import { ApiError } from "../utils/errorHandler";
 
 type videoFileType = {
@@ -30,10 +30,12 @@ const uploadVideo = asyncHandler(async (req: Request, res: Response) => {
     throw new ApiError(400, "Thumbnail file is required");
   }
 
-  const video = await uploadVideo_service(
-    videoData,
-    videoFile.video[0],
-    thumbnailFile.thumbnail[0],
-    channelId,
-  );
+  // const video = await uploadVideo_service(
+  //   videoData,
+  //   videoFile.video[0],
+  //   thumbnailFile.thumbnail[0],
+  //   channelId,
+  // );
 });
+
+export { uploadVideo };
