@@ -15,7 +15,7 @@ const generateSignedUrl = () => {
   // Every signature is parametrized for the specific upload needed
   const paramsToSign = {
     timestamp: Math.floor(new Date().getTime() / 1000),
-    folder: config.CLOUDINARY_UPLOAD_FOLDER
+    folder: config.CLOUDINARY_UPLOAD_FOLDER,
   };
 
   const signature = cloudinary.utils.api_sign_request(
@@ -23,7 +23,11 @@ const generateSignedUrl = () => {
     config.CLOUDINARY_SECRET,
   );
 
-  
+  return {
+    signature,
+    paramsToSign,
+    coloudinary_key: config.CLOUDINARY_API_KEY
+  };
 };
 
 // const uploadFileToS3 = async (

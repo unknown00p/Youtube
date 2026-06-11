@@ -6,7 +6,7 @@ interface IVideo {
   isCommentEnabled: boolean;
   channel_id: Types.ObjectId;
   video_url: string;
-  s3FileKey: string;
+  public_id: string;
   thumbnail_url: string;
   duration: number | null;
   tags: string[] | null;
@@ -38,7 +38,7 @@ const videoSchema = new Schema<IVideo>(
     thumbnail_url: { type: String, required: true },
     duration: { type: Number, default: null }, // in seconds
 
-    s3FileKey: { type: String, required: true }, // S3 file key for management
+    public_id: { type: String, required: true }, // S3 file key for management
 
     // Metadata
     tags: { type: [String], default: null }, // indexed
