@@ -1,7 +1,12 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncFunctionWarper";
-import { UploadVideo_z_data, UpdateVideo_z_data } from "../zod/video.z";
 import {
+  UploadVideo_z_data,
+  UpdateVideo_z_data,
+  GetAllVideo_z_data,
+} from "../zod/video.z";
+import {
+  getAllVideoService,
   getVideoByIdService,
   updateVideoService,
   uploadVideo_service,
@@ -63,4 +68,14 @@ const getVideoById = asyncHandler(async (req: Request, res: Response) => {
   res.status(200).json(new ApiResponse(200, "got video successfully", video));
 });
 
-export { uploadVideo };
+const getAllVideo = asyncHandler(async (req: Request, res: Response) => {
+  const { page, limit } = GetAllVideo_z_data.parse(req.params);
+
+  const videos = await getAllVideoService({ page, limit });
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, "got all videos succefully", videos));
+});
+
+export { uploadVideo, updateVideo, getVideoById, getAllVideo };

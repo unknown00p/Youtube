@@ -48,3 +48,8 @@ export const UpdateVideo_z_data = z.object({
 
   videoid: z.string().max(50)
 });
+
+export const GetAllVideo_z_data = z.object({
+  page: z.number().min(1),
+  limit: z.number().max(10)
+})

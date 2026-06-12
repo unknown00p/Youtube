@@ -50,6 +50,10 @@ async function uploadVideo_service({
     status: "published",
   });
 
+  if (!upload) {
+    throw new ApiError(404, "got error while uploading video");
+  }
+
   return {
     upload,
   };
@@ -86,4 +90,19 @@ async function getVideoByIdService(videoId: string) {
   };
 }
 
-export { uploadVideo_service, updateVideoService, getVideoByIdService };
+async function getAllVideoService({
+  page,
+  limit,
+}: {
+  page: number;
+  limit: number;
+}) {
+  
+}
+
+export {
+  uploadVideo_service,
+  updateVideoService,
+  getVideoByIdService,
+  getAllVideoService,
+};
