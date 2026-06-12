@@ -34,3 +34,17 @@ export const UploadVideo_z_data = z.object({
   visibility: VideoVisibility_z_data.default("public"),
   status: VideoStatus_z_data.default("processing"),
 });
+
+export const UpdateVideo_z_data = z.object({
+  title: z
+    .string()
+    .min(3, "Title must be at least 3 characters")
+    .max(100, "Title is too long")
+    .trim(),
+  description: z
+    .string()
+    .max(5000, "Description cannot exceed 5000 characters")
+    .default(""),
+
+  videoid: z.string().max(50)
+});

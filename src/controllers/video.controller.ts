@@ -1,7 +1,11 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncFunctionWarper";
-import { UploadVideo_z_data } from "../zod/video.z";
-import { uploadVideo_service } from "../services/video.service";
+import { UploadVideo_z_data, UpdateVideo_z_data } from "../zod/video.z";
+import {
+  getVideoByIdService,
+  updateVideoService,
+  uploadVideo_service,
+} from "../services/video.service";
 import { ApiError } from "../utils/errorHandler";
 import { ApiResponse } from "../utils/responseHandler";
 
@@ -35,6 +39,28 @@ const uploadVideo = asyncHandler(async (req: Request, res: Response) => {
   res
     .status(200)
     .json(new ApiResponse(200, "video uploaded sucessfully", video));
+});
+
+const updateVideo = asyncHandler(async (req: Request, res: Response) => {
+  const { title, description, videoid } = UpdateVideo_z_data.parse(req.params);
+
+  const video = await updateVideoService({
+    videoid,
+    title,
+    description,
+  });
+});
+
+const getVideoById = asyncHandler(async (req: Request, res: Response) => {
+  const videoId = req.params.videoId;
+
+  if (!videoId) {
+    throw new ApiError(404, "please provide videoId");
+  }
+
+  const video = await getVideoByIdService(videoId);
+
+  res.status(200).json(new ApiResponse(200, "got video successfully", video));
 });
 
 export { uploadVideo };

@@ -24,6 +24,12 @@ export interface IUploadVideoData {
   status?: VideoStatus;
 }
 
+export interface IUpdateVideoData {
+  videoid: string;
+  title: string;
+  description: string;
+}
+
 async function uploadVideo_service({
   video_url,
   thumbnail_url,
@@ -45,8 +51,39 @@ async function uploadVideo_service({
   });
 
   return {
-    upload
-  }
+    upload,
+  };
 }
 
-export { uploadVideo_service };
+async function updateVideoService({
+  videoid,
+  title,
+  description,
+}: IUpdateVideoData) {
+  const updateVideo = await Video.findByIdAndUpdate(videoid, {
+    title,
+    description,
+  });
+
+  if (!updateVideo) {
+    throw new ApiError(404, "got error while updating video");
+  }
+
+  return {
+    updateVideo,
+  };
+}
+
+async function getVideoByIdService(videoId: string) {
+  const video = await Video.findById(videoId);
+
+  if (!video) {
+    throw new ApiError(400, "got error while getting video");
+  }
+
+  return {
+    video,
+  };
+}
+
+export { uploadVideo_service, updateVideoService, getVideoByIdService };
