@@ -44,12 +44,20 @@ export const UpdateVideo_z_data = z.object({
   description: z
     .string()
     .max(5000, "Description cannot exceed 5000 characters")
-    .default(""),
-
-  videoid: z.string().max(50)
+    .default("")
 });
 
 export const GetAllVideo_z_data = z.object({
   page: z.number().min(1),
-  limit: z.number().max(10)
+  limit: z.string().max(10)
+})
+
+export const GetAllVideoOfUser_z_data = z.object({
+  channelId: z.string().max(20),
+  page: z.number().min(1),
+  limit: z.string().max(10)
+})
+
+export const ToggalVideoVisibillity_z_data = z.object({
+  visibility: z.enum(["public", "private", "unlisted"])
 })

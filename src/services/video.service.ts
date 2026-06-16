@@ -30,6 +30,12 @@ export interface IUpdateVideoData {
   description: string;
 }
 
+export interface IGetAllVideoData {
+  channelId: string;
+  page: number;
+  limit: string;
+}
+
 async function uploadVideo_service({
   video_url,
   thumbnail_url,
@@ -95,9 +101,33 @@ async function getAllVideoService({
   limit,
 }: {
   page: number;
-  limit: number;
+  limit: string;
 }) {
-  
+  const videos = await Video.find()
+    .skip((page - 1) * parseInt(limit))
+    .limit(parseInt(limit));
+
+  if (!videos) {
+    throw new ApiError(404, "got error while getting all videos");
+  }
+
+  return videos;
+}
+
+async function getAllVideosOfUserService({
+  channelId,
+  page,
+  limit,
+}: IGetAllVideoData) {
+  const videos = await Video.find({ channel_id: channelId })
+    .skip((page - 1) * parseInt(limit))
+    .limit(parseInt(limit));
+
+  if (!videos) {
+    throw new ApiError(404, "got error while getting all videos");
+  }
+
+  return videos
 }
 
 export {
@@ -105,4 +135,5 @@ export {
   updateVideoService,
   getVideoByIdService,
   getAllVideoService,
+  getAllVideosOfUserService,
 };

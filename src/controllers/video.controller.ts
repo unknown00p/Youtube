@@ -4,9 +4,12 @@ import {
   UploadVideo_z_data,
   UpdateVideo_z_data,
   GetAllVideo_z_data,
+  GetAllVideoOfUser_z_data,
+  ToggalVideoVisibillity_z_data,
 } from "../zod/video.z";
 import {
   getAllVideoService,
+  getAllVideosOfUserService,
   getVideoByIdService,
   updateVideoService,
   uploadVideo_service,
@@ -47,7 +50,12 @@ const uploadVideo = asyncHandler(async (req: Request, res: Response) => {
 });
 
 const updateVideo = asyncHandler(async (req: Request, res: Response) => {
-  const { title, description, videoid } = UpdateVideo_z_data.parse(req.params);
+  const { videoid } = req.params;
+  const { title, description } = UpdateVideo_z_data.parse(req.query);
+
+  if (!videoid) {
+    throw new ApiError(404, "please provide videoId");
+  }
 
   const video = await updateVideoService({
     videoid,
@@ -68,7 +76,7 @@ const getVideoById = asyncHandler(async (req: Request, res: Response) => {
   res.status(200).json(new ApiResponse(200, "got video successfully", video));
 });
 
-const getAllVideo = asyncHandler(async (req: Request, res: Response) => {
+const getAllVideos = asyncHandler(async (req: Request, res: Response) => {
   const { page, limit } = GetAllVideo_z_data.parse(req.params);
 
   const videos = await getAllVideoService({ page, limit });
@@ -78,4 +86,31 @@ const getAllVideo = asyncHandler(async (req: Request, res: Response) => {
     .json(new ApiResponse(200, "got all videos succefully", videos));
 });
 
-export { uploadVideo, updateVideo, getVideoById, getAllVideo };
+const getAllVideosOfUser = asyncHandler(async (req: Request, res: Response) => {
+  const { channelId, page, limit } = GetAllVideoOfUser_z_data.parse(req.params);
+
+  const videos = await getAllVideosOfUserService({ channelId, page, limit });
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, "got all videos of user succefully", videos));
+});
+
+const addViewsToVideos = asyncHandler(async(req: Request, res: Response)=>{
+  
+})
+
+const toggleVideoVisibility = asyncHandler(
+  async (req: Request, res: Response) => {
+    const videoId = req.params.videoId;
+    const { visibility } = ToggalVideoVisibillity_z_data.parse(req.query);
+  },
+);
+
+export {
+  uploadVideo,
+  updateVideo,
+  getVideoById,
+  getAllVideos,
+  getAllVideosOfUser,
+};
