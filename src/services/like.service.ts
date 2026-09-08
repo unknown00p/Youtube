@@ -2,7 +2,6 @@ import { Like } from "../models/like.models";
 import { Video } from "../models/video.models";
 import { ApiError } from "../utils/errorHandler";
 import { likeCountUpdateQueue } from "../infrastructure/queue";
-import { Comment } from "../models/comment.models";
 
 async function likeVideo_service(channelId: string, videoId: string) {
   const video = await Video.findById(videoId).select("visibility like_count");

@@ -8,6 +8,7 @@ import {
   ToggalVideoVisibillity_z_data,
 } from "../zod/video.z";
 import {
+  addViewsToVideosService,
   getAllVideoService,
   getAllVideosOfUserService,
   getVideoByIdService,
@@ -96,14 +97,21 @@ const getAllVideosOfUser = asyncHandler(async (req: Request, res: Response) => {
     .json(new ApiResponse(200, "got all videos of user succefully", videos));
 });
 
-const addViewsToVideos = asyncHandler(async(req: Request, res: Response)=>{
-  
-})
+const addViewsToVideos = asyncHandler(async (req: Request, res: Response) => {
+  const { videoId } = req.params;
+  const views = await addViewsToVideosService(videoId);
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, "got all videos of user succefully", views));
+});
 
 const toggleVideoVisibility = asyncHandler(
   async (req: Request, res: Response) => {
     const videoId = req.params.videoId;
     const { visibility } = ToggalVideoVisibillity_z_data.parse(req.query);
+
+    
   },
 );
 
@@ -113,4 +121,5 @@ export {
   getVideoById,
   getAllVideos,
   getAllVideosOfUser,
+  addViewsToVideos
 };

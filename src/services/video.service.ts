@@ -1,7 +1,3 @@
-// import {
-//   uploadFileToS3,
-//   uploadMultipleFilesToS3,
-// } from "../infrastructure/storage/S3_provider";
 import { Video } from "../models/video.models";
 import { getVideoDuration } from "../utils/getVideoDuration";
 import { ApiError } from "../utils/errorHandler";
@@ -127,7 +123,23 @@ async function getAllVideosOfUserService({
     throw new ApiError(404, "got error while getting all videos");
   }
 
-  return videos
+  return videos;
+}
+
+async function addViewsToVideosService(videoId: string) {
+  const video = await Video.findByIdAndUpdate(
+    videoId,
+    {
+      $inc: { views: 1 },
+    },
+    {
+      new: true,
+    },
+  );
+
+  if (!video) {
+    throw new ApiError(404, "Video not found");
+  }
 }
 
 export {
@@ -136,4 +148,5 @@ export {
   getVideoByIdService,
   getAllVideoService,
   getAllVideosOfUserService,
+  addViewsToVideosService
 };
