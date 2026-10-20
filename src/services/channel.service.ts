@@ -394,8 +394,6 @@ async function deleteChannel_service(channelId: string, userId: string) {
 //         select: "title thumbnail_url duration channel_id"
 //     })
 //     .exec();
-
-
 // }
 
 export {
